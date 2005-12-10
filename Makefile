@@ -1,25 +1,26 @@
 #(C)2004-2005 SourceMM Development Team
 # Makefile written by David "BAILOPAN" Anderson
 
-HL2SDK = ../../../hl2sdk
-SMM_ROOT = ../../
+HL2SDK = ../../hl2sdk
+SMM_ROOT = ../../sourcemm
 SRCDS = ~/srcds
 
 ### EDIT BELOW FOR OTHER PROJECTS ###
 
 OPT_FLAGS = -O3 -fno-rtti -funroll-loops -s -pipe
 DEBUG_FLAGS = -g -ggdb3
-CPP = g++
-BINARY = stub_mm_i486.so
+CPP = gcc-3.4
+BINARY = stripper_mm_i486.so
 
-OBJECTS = stub_mm.cpp
+OBJECTS = stripper_mm.cpp concmds.cpp parser.cpp
 
-LINK = vstdlib_i486.so tier0_i486.so
+LINK = vstdlib_i486.so tier0_i486.so libpcre.a
 
 HL2PUB = $(HL2SDK)/public
 
 INCLUDE = -I. -I$(HL2PUB) -I$(HL2PUB)/dlls -I$(HL2PUB)/engine -I$(HL2PUB)tier0 -I$(HL2PUB)/tier1 \
-	-I$(HL2PUB)/vstdlib -I$(HL2SDK)/tier1 -I$(SMM_ROOT) -I$(SMM_ROOT)/sourcehook -I$(SMM_ROOT)/sourcemm
+	-I$(HL2PUB)/vstdlib -I$(HL2SDK)/tier1 -I$(SMM_ROOT) -I$(SMM_ROOT)/sourcehook -I$(SMM_ROOT)/sourcemm \
+	-I../../pcre 
 
 ifeq "$(DEBUG)" "true"
 	BIN_DIR = Debug

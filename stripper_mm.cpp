@@ -99,7 +99,7 @@ bool StripperPlugin::Unload(char *error, size_t maxlen)
 
 const char *StripperPlugin::ParseAndFilter(const char *map, const char *ents)
 {
-	char gamedir[24], path[255];
+	char gamedir[64], path[255];
 	engine->GetGameDir(gamedir, sizeof(gamedir)-1);
 
 	FILE *fp;

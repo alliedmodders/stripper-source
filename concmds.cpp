@@ -13,6 +13,8 @@
 #include <windows.h>
 #include <direct.h>
 #else
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #endif
 
@@ -21,7 +23,7 @@ ConVar stripper_version("stripper_version", STRIPPER_VERSION, FCVAR_SPONLY|FCVAR
 CON_COMMAND(stripper_dump, "Dumps the map entity list to a file")
 {
 	char path[255];
-	char gamedir[24];
+	char gamedir[64];
 
 	engine->GetGameDir(gamedir, sizeof(gamedir)-1);
 	UTIL_PathFmt(path, sizeof(path)-1, "%s/addons/stripper/dumps", gamedir);
@@ -36,7 +38,7 @@ CON_COMMAND(stripper_dump, "Dumps the map entity list to a file")
 #else
 	struct stat s;
 	
-	if (stat(file, &s) != 0)
+	if (stat(path, &s) != 0)
 	{
 		mkdir(path, 0775);
 	} else {
