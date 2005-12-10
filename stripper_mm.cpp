@@ -1,16 +1,17 @@
-/* ======== stub_mm ========
-* Copyright (C) 2004-2005 Metamod:Source Development Team
-* No warranties of any kind
-*
-* License: zlib/libpng
-*
-* Author(s): David "BAILOPAN" Anderson
-* ============================
-*/
+/** ======== stripper_mm ========
+ *  Copyright (C) 2005 David "BAILOPAN" Anderson
+ *  No warranties of any kind.
+ *  Based on the original concept of Stripper2 by botman
+ *
+ *  License: see LICENSE.TXT
+ *  ============================
+ */
 
 #include <oslink.h>
 #include "stripper_mm.h"
 #include "parser.h"
+
+using namespace SourceHook;
 
 StripperPlugin g_Plugin;
 
@@ -20,6 +21,7 @@ IServerGameDLL *server = NULL;
 SourceHook::CallClass<IVEngineServer> *enginepatch = NULL;
 SourceHook::CallClass<IServerGameDLL> *serverpatch = NULL;
 SourceHook::String g_mapname;
+ConVar *sv_cheats = NULL;
 
 //This has all of the necessary hook declarations.  Read it!
 #include "meta_hooks.h"
@@ -42,11 +44,50 @@ bool StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen
 	enginepatch = SH_GET_CALLCLASS(engine);
 	serverpatch = SH_GET_CALLCLASS(server);
 
+	ismm->AddListener(this, this);
+
+	ConCommandBaseMgr::OneTimeInit(this);
+
 	return true;
+}
+
+void StripperPlugin::AddMapEntityFilter(const char *file)
+{
+	g_Stripper.ApplyFileFilter(file);
+}
+
+void *StripperPlugin::OnEngineQuery(const char *iface, int *ret)
+{
+	if (strcmp(iface, STRIPPER_INTERFACE)==0)
+	{
+		if (ret)
+			*ret = IFACE_OK;
+		return (void *)(static_cast<IStripper *>(&g_Plugin));
+	}
+
+	return NULL;
+}
+
+void *StripperPlugin::OnMetamodQuery(const char *iface, int *ret)
+{
+	if (strcmp(iface, STRIPPER_INTERFACE)==0)
+	{
+		if (ret)
+			*ret = IFACE_OK;
+		return (void *)(static_cast<IStripper *>(&g_Plugin));
+	}
+
+	return NULL;
 }
 
 bool StripperPlugin::Unload(char *error, size_t maxlen)
 {
+	List<IStripperListener *>::iterator iter, end;
+	for (iter=m_hooks.begin(); iter!=m_hooks.end(); iter++)
+		(*iter)->Unloading();
+
+	m_hooks.clear();
+
 	SH_RELEASE_CALLCLASS(serverpatch);
 	SH_RELEASE_CALLCLASS(enginepatch);
 
@@ -83,7 +124,21 @@ const char *StripperPlugin::ParseAndFilter(const char *map, const char *ents)
 		g_Stripper.ApplyFileFilter(path);
 	}
 
+	List<IStripperListener *>::iterator iter, end;
+	for (iter=m_hooks.begin(); iter!=m_hooks.end(); iter++)
+		(*iter)->OnMapInitialize(map);
+
 	return g_Stripper.ToString();
+}
+
+void StripperPlugin::AddMapListener(IStripperListener *pListener)
+{
+	m_hooks.push_back(pListener);
+}
+
+void StripperPlugin::RemoveMapListener(IStripperListener *pListener)
+{
+	m_hooks.remove(pListener);
 }
 
 const char *GetMapEntitiesString_handler()
@@ -112,6 +167,19 @@ bool StripperPlugin::Unpause(char *error, size_t maxlen)
 
 void StripperPlugin::AllPluginsLoaded()
 {
+	ICvar *icvar = (ICvar *)((g_SMAPI->engineFactory())(VENGINE_CVAR_INTERFACE_VERSION, NULL));
+	if (icvar)
+	{
+		ConCommandBase *pBase = icvar->GetCommands();
+		while (pBase)
+		{
+			if (strcmp(pBase->GetName(), "sv_cheats")==0)
+				break;
+			pBase = const_cast<ConCommandBase *>(pBase->GetNext());
+		}
+		if (pBase)
+			sv_cheats = (ConVar *)pBase;
+	}
 }
 
 const char *StripperPlugin::GetAuthor()
@@ -141,7 +209,7 @@ const char *StripperPlugin::GetLicense()
 
 const char *StripperPlugin::GetVersion()
 {
-	return "1.00";
+	return STRIPPER_VERSION;
 }
 
 const char *StripperPlugin::GetDate()
@@ -152,6 +220,11 @@ const char *StripperPlugin::GetDate()
 const char *StripperPlugin::GetLogTag()
 {
 	return "STRIPPER";
+}
+
+bool StripperPlugin::RegisterConCommandBase(ConCommandBase *pVar)
+{
+	return META_REGCVAR(pVar);
 }
 
 /** 
@@ -170,3 +243,4 @@ void UTIL_PathFmt(char *buffer, size_t len, const char *fmt, ...)
 			buffer[i] = PATH_SEP_CHAR;
 	}
 }
+

@@ -1,3 +1,12 @@
+/** ======== stripper_mm ========
+ *  Copyright (C) 2005 David "BAILOPAN" Anderson
+ *  No warranties of any kind.
+ *  Based on the original concept of Stripper2 by botman
+ *
+ *  License: see LICENSE.TXT
+ *  ============================
+ */
+
 #ifndef _INCLUDE_STRIP_PARSER_H
 #define _INCLUDE_STRIP_PARSER_H
 

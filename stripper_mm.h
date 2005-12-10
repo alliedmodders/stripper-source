@@ -1,20 +1,27 @@
-/* ======== stub_mm ========
-* Copyright (C) 2004-2005 Metamod:Source Development Team
-* No warranties of any kind
-*
-* License: zlib/libpng
-*
-* Author(s): David "BAILOPAN" Anderson
-* ============================
-*/
+/** ======== stripper_mm ========
+ *  Copyright (C) 2005 David "BAILOPAN" Anderson
+ *  No warranties of any kind.
+ *  Based on the original concept of Stripper2 by botman
+ *
+ *  License: see LICENSE.TXT
+ *  ============================
+ */
 
 #ifndef _INCLUDE_SAMPLEPLUGIN_H
 #define _INCLUDE_SAMPLEPLUGIN_H
 
 #include <ISmmPlugin.h>
 #include <sh_string.h>
+#include <sh_list.h>
+#include "IStripper.h"
 
-class StripperPlugin : public ISmmPlugin
+#define STRIPPER_VERSION		"1.00"
+
+class StripperPlugin : 
+	public ISmmPlugin, 
+	public IStripper,
+	public IMetamodListener,
+	public IConCommandBaseAccessor
 {
 public:
 	friend bool LevelInit_handler(char const *pMapName, char const *pMapEntities, char const *c, char const *d, bool e, bool f);
@@ -34,8 +41,19 @@ public:
 	const char *GetVersion();
 	const char *GetDate();
 	const char *GetLogTag();
+public:	//IStripper
+	void AddMapListener(IStripperListener *pListener);
+	void RemoveMapListener(IStripperListener *pListener);
+	void AddMapEntityFilter(const char *file);
+public:	//IMetamodListener
+	void *OnEngineQuery(const char *iface, int *ret);
+	void *OnMetamodQuery(const char *iface, int *ret);
+public:	//IConCommandBaseAccessor
+	bool RegisterConCommandBase(ConCommandBase *pVar);
 private:
 	const char *ParseAndFilter(const char *map, const char *ents);
+private:
+	SourceHook::List<IStripperListener *> m_hooks;
 };
 
 extern IVEngineServer *engine;
@@ -43,6 +61,7 @@ extern IServerGameDLL *server;
 extern SourceHook::CallClass<IVEngineServer> *enginepatch;
 extern SourceHook::CallClass<IServerGameDLL> *serverpatch;
 extern SourceHook::String g_mapname;
+extern ConVar *sv_cheats;
 
 extern StripperPlugin g_Plugin;
 

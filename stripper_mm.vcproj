@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="tier0.lib pcre.lib"
+				AdditionalDependencies="tier0.lib pcre.lib vstdlib.lib"
 				ShowProgress="0"
 				OutputFile="$(OutDir)/stripper_mm.dll"
 				LinkIncremental="2"
@@ -81,7 +81,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="tier0.lib pcre.lib"
+				AdditionalDependencies="tier0.lib pcre.lib vstdlib.lib"
 				OutputFile="$(OutDir)/stripper_mm.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
@@ -120,6 +120,9 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
+				RelativePath=".\concmds.cpp">
+			</File>
+			<File
 				RelativePath=".\parser.cpp">
 			</File>
 			<File
@@ -130,6 +133,9 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath=".\IStripper.h">
+			</File>
 			<File
 				RelativePath=".\meta_hooks.h">
 			</File>
