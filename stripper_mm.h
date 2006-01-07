@@ -15,7 +15,7 @@
 #include <sh_list.h>
 #include "IStripper.h"
 
-#define STRIPPER_VERSION		"1.00"
+#define STRIPPER_VERSION		"1.01"
 
 class StripperPlugin : 
 	public ISmmPlugin, 
@@ -58,8 +58,9 @@ private:
 
 extern IVEngineServer *engine;
 extern IServerGameDLL *server;
-extern SourceHook::CallClass<IVEngineServer> *enginepatch;
-extern SourceHook::CallClass<IServerGameDLL> *serverpatch;
+//unused
+//extern SourceHook::CallClass<IVEngineServer> *enginepatch;
+//extern SourceHook::CallClass<IServerGameDLL> *serverpatch;
 extern SourceHook::String g_mapname;
 extern ConVar *sv_cheats;
 
@@ -82,8 +83,9 @@ PLUGIN_GLOBALVARS();
 		return false; \
 	}
 
-#define ENGCALL(func)	SH_CALL(enginepatch, &IVEngineServer::func)
-#define DLLCALL(func)	SH_CALL(serverpatch, &IServerGameDLL::func)
+//unused
+//#define ENGCALL(func)	SH_CALL(enginepatch, &IVEngineServer::func)
+//#define DLLCALL(func)	SH_CALL(serverpatch, &IServerGameDLL::func)
 
 const char *GetMapEntitiesString_handler();
 bool LevelInit_handler(char const *pMapName, char const *pMapEntities, char const *c, char const *d, bool e, bool f);

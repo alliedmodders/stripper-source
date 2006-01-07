@@ -18,8 +18,9 @@ StripperPlugin g_Plugin;
 PLUGIN_EXPOSE(StripperPlugin, g_Plugin);
 IVEngineServer *engine = NULL;
 IServerGameDLL *server = NULL;
-SourceHook::CallClass<IVEngineServer> *enginepatch = NULL;
-SourceHook::CallClass<IServerGameDLL> *serverpatch = NULL;
+//unused
+//SourceHook::CallClass<IVEngineServer> *enginepatch = NULL;
+//SourceHook::CallClass<IServerGameDLL> *serverpatch = NULL;
 SourceHook::String g_mapname;
 ConVar *sv_cheats = NULL;
 
@@ -41,8 +42,9 @@ bool StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen
 	SH_ADD_HOOK_STATICFUNC(IVEngineServer, GetMapEntitiesString, engine, GetMapEntitiesString_handler, false);
 	SH_ADD_HOOK_STATICFUNC(IServerGameDLL, LevelInit, server, LevelInit_handler, false);
 
-	enginepatch = SH_GET_CALLCLASS(engine);
-	serverpatch = SH_GET_CALLCLASS(server);
+	//unused
+	//enginepatch = SH_GET_CALLCLASS(engine);
+	//serverpatch = SH_GET_CALLCLASS(server);
 
 	ismm->AddListener(this, this);
 
@@ -88,8 +90,9 @@ bool StripperPlugin::Unload(char *error, size_t maxlen)
 
 	m_hooks.clear();
 
-	SH_RELEASE_CALLCLASS(serverpatch);
-	SH_RELEASE_CALLCLASS(enginepatch);
+	//unused
+	//SH_RELEASE_CALLCLASS(serverpatch);
+	//SH_RELEASE_CALLCLASS(enginepatch);
 
 	SH_REMOVE_HOOK_STATICFUNC(IVEngineServer, GetMapEntitiesString, engine, GetMapEntitiesString_handler, false);
 	SH_REMOVE_HOOK_STATICFUNC(IServerGameDLL, LevelInit, server, LevelInit_handler, false);
@@ -150,9 +153,7 @@ bool LevelInit_handler(char const *pMapName, char const *pMapEntities, char cons
 {
 	g_mapname.assign(pMapName);
 	const char *ents = g_Plugin.ParseAndFilter(g_mapname.c_str(), pMapEntities);
-	bool result = DLLCALL(LevelInit)(pMapName, ents, c, d, e, f);
-
-	RETURN_META_VALUE(MRES_SUPERCEDE, result);
+	RETURN_META_VALUE_NEWPARAMS(MRES_IGNORED, true, &IServerGameDLL::LevelInit, (pMapName, ents, c, d, e, f));
 }
 
 bool StripperPlugin::Pause(char *error, size_t maxlen)
