@@ -90,10 +90,6 @@ bool StripperPlugin::Unload(char *error, size_t maxlen)
 
 	m_hooks.clear();
 
-	//unused
-	//SH_RELEASE_CALLCLASS(serverpatch);
-	//SH_RELEASE_CALLCLASS(enginepatch);
-
 	SH_REMOVE_HOOK_STATICFUNC(IVEngineServer, GetMapEntitiesString, engine, GetMapEntitiesString_handler, false);
 	SH_REMOVE_HOOK_STATICFUNC(IServerGameDLL, LevelInit, server, LevelInit_handler, false);
 
@@ -102,7 +98,7 @@ bool StripperPlugin::Unload(char *error, size_t maxlen)
 
 const char *StripperPlugin::ParseAndFilter(const char *map, const char *ents)
 {
-	char gamedir[64], path[255];
+	char gamedir[255], path[255];
 	engine->GetGameDir(gamedir, sizeof(gamedir)-1);
 
 	FILE *fp;
