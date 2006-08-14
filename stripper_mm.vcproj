@@ -32,11 +32,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="tier0.lib pcre.lib vstdlib.lib"
+				AdditionalDependencies="tier0.lib tier1.lib pcre.lib vstdlib.lib"
 				ShowProgress="0"
 				OutputFile="$(OutDir)/stripper_mm.dll"
 				LinkIncremental="2"
-				IgnoreDefaultLibraryNames="LIBC"
+				IgnoreDefaultLibraryNames="LIBCMT"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/stripper_mm.pdb"
 				SubSystem="2"
@@ -81,9 +81,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="tier0.lib pcre.lib vstdlib.lib"
+				AdditionalDependencies="tier0.lib tier1.lib pcre.lib vstdlib.lib"
 				OutputFile="$(OutDir)/stripper_mm.dll"
 				LinkIncremental="1"
+				IgnoreDefaultLibraryNames="LIBCMT"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -137,19 +138,11 @@
 				RelativePath=".\IStripper.h">
 			</File>
 			<File
-				RelativePath=".\meta_hooks.h">
-			</File>
-			<File
 				RelativePath=".\parser.h">
 			</File>
 			<File
 				RelativePath=".\stripper_mm.h">
 			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 		</Filter>
 	</Files>
 	<Globals>

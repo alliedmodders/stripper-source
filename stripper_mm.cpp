@@ -1,5 +1,5 @@
 /** ======== stripper_mm ========
- *  Copyright (C) 2005 David "BAILOPAN" Anderson
+ *  Copyright (C) 2005-2006 David "BAILOPAN" Anderson
  *  No warranties of any kind.
  *  Based on the original concept of Stripper2 by botman
  *
@@ -18,33 +18,30 @@ StripperPlugin g_Plugin;
 PLUGIN_EXPOSE(StripperPlugin, g_Plugin);
 IVEngineServer *engine = NULL;
 IServerGameDLL *server = NULL;
-//unused
-//SourceHook::CallClass<IVEngineServer> *enginepatch = NULL;
-//SourceHook::CallClass<IServerGameDLL> *serverpatch = NULL;
 SourceHook::String g_mapname;
 ConVar *sv_cheats = NULL;
 
-//This has all of the necessary hook declarations.  Read it!
-#include "meta_hooks.h"
+SH_DECL_HOOK0(IVEngineServer, GetMapEntitiesString, SH_NOATTRIB, 0, const char *);
+SH_DECL_HOOK6(IServerGameDLL, LevelInit, SH_NOATTRIB, 0, bool, char const *, char const *, char const *, char const *, bool, bool);
+
+#define GET_V_IFACE(v_factory, v_var, v_type, v_name) \
+	v_var = (v_type *)ismm->VInterfaceMatch(ismm->v_factory(), v_name); \
+	if (!v_var) { \
+		if (error && maxlen) { \
+			snprintf(error, maxlen, "Could not find interface: %s", v_name); \
+		} \
+		return false; \
+	}
 
 bool StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, bool late)
 {
 	PLUGIN_SAVEVARS();
 
-	char iface_buffer[255];
-	int num=0;
-
-	strcpy(iface_buffer, INTERFACEVERSION_SERVERGAMEDLL);
-	FIND_IFACE(serverFactory, server, num, iface_buffer, IServerGameDLL *);
-	strcpy(iface_buffer, INTERFACEVERSION_VENGINESERVER);
-	FIND_IFACE(engineFactory, engine, num, iface_buffer, IVEngineServer *);
+	GET_V_IFACE(serverFactory, server, IServerGameDLL, INTERFACEVERSION_SERVERGAMEDLL);
+	GET_V_IFACE(engineFactory, engine, IVEngineServer, INTERFACEVERSION_VENGINESERVER);
 
 	SH_ADD_HOOK_STATICFUNC(IVEngineServer, GetMapEntitiesString, engine, GetMapEntitiesString_handler, false);
 	SH_ADD_HOOK_STATICFUNC(IServerGameDLL, LevelInit, server, LevelInit_handler, false);
-
-	//unused
-	//enginepatch = SH_GET_CALLCLASS(engine);
-	//serverpatch = SH_GET_CALLCLASS(server);
 
 	ismm->AddListener(this, this);
 
@@ -60,7 +57,7 @@ void StripperPlugin::AddMapEntityFilter(const char *file)
 
 void *StripperPlugin::OnEngineQuery(const char *iface, int *ret)
 {
-	if (strcmp(iface, STRIPPER_INTERFACE)==0)
+	if (strcmp(iface, STRIPPER_INTERFACE) == 0)
 	{
 		if (ret)
 			*ret = IFACE_OK;
@@ -98,14 +95,14 @@ bool StripperPlugin::Unload(char *error, size_t maxlen)
 
 const char *StripperPlugin::ParseAndFilter(const char *map, const char *ents)
 {
-	char gamedir[255], path[255];
+	char gamedir[256], path[256];
 	engine->GetGameDir(gamedir, sizeof(gamedir)-1);
 
 	FILE *fp;
 
 	g_Stripper.SetEntityList(ents);
 
-	UTIL_PathFmt(path, sizeof(path)-1, "%s/addons/stripper/global_filters.cfg", gamedir);
+	g_SMAPI->PathFormat(path, sizeof(path)-1, "%s/addons/stripper/global_filters.cfg", gamedir);
 	fp = fopen(path, "rt");
 	if (!fp)
 		META_LOG(g_PLAPI, "Could not find global filter file: %s", path);
@@ -115,7 +112,7 @@ const char *StripperPlugin::ParseAndFilter(const char *map, const char *ents)
 		g_Stripper.ApplyFileFilter(path);
 	}
 
-	UTIL_PathFmt(path, sizeof(path)-1, "%s/addons/stripper/maps/%s.cfg", gamedir, map);
+	g_SMAPI->PathFormat(path, sizeof(path)-1, "%s/addons/stripper/maps/%s.cfg", gamedir, map);
 	fp = fopen(path, "rt");
 	if (fp)
 	{
@@ -222,22 +219,5 @@ const char *StripperPlugin::GetLogTag()
 bool StripperPlugin::RegisterConCommandBase(ConCommandBase *pVar)
 {
 	return META_REGCVAR(pVar);
-}
-
-/** 
- * Formats a path name for an OS
- */
-void UTIL_PathFmt(char *buffer, size_t len, const char *fmt, ...)
-{
-	va_list ap;
-	va_start(ap,fmt);
-	size_t mylen = vsnprintf(buffer, len, fmt, ap);
-	va_end(ap);
-
-	for (size_t i=0; i<mylen; i++)
-	{
-		if (buffer[i] == ALT_SEP_CHAR)
-			buffer[i] = PATH_SEP_CHAR;
-	}
 }
 

@@ -1,5 +1,5 @@
 /** ======== stripper_mm ========
- *  Copyright (C) 2005 David "BAILOPAN" Anderson
+ *  Copyright (C) 2005-2006 David "BAILOPAN" Anderson
  *  No warranties of any kind.
  *  Based on the original concept of Stripper2 by botman
  *
@@ -26,7 +26,7 @@ CON_COMMAND(stripper_dump, "Dumps the map entity list to a file")
 	char gamedir[64];
 
 	engine->GetGameDir(gamedir, sizeof(gamedir)-1);
-	UTIL_PathFmt(path, sizeof(path)-1, "%s/addons/stripper/dumps", gamedir);
+	g_SMAPI->PathFormat(path, sizeof(path)-1, "%s/addons/stripper/dumps", gamedir);
 
 #ifdef WIN32
 	DWORD attr = GetFileAttributes(path);
@@ -54,7 +54,7 @@ CON_COMMAND(stripper_dump, "Dumps the map entity list to a file")
 	char file[255];
 	do
 	{
-		UTIL_PathFmt(file, sizeof(file)-1, "%s/%s.%04d.cfg", path, g_mapname.c_str(), num);
+		g_SMAPI->PathFormat(file, sizeof(file)-1, "%s/%s.%04d.cfg", path, g_mapname.c_str(), num);
 		FILE *fp = fopen(file, "rt");
 		if (!fp)
 			break;
@@ -67,5 +67,3 @@ CON_COMMAND(stripper_dump, "Dumps the map entity list to a file")
 
 	META_LOG(g_PLAPI, "Logged map %s to file %s", g_mapname.c_str(), file);
 }
-
-#include "convar.cpp"

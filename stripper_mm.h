@@ -1,5 +1,5 @@
 /** ======== stripper_mm ========
- *  Copyright (C) 2005 David "BAILOPAN" Anderson
+ *  Copyright (C) 2005-2006 David "BAILOPAN" Anderson
  *  No warranties of any kind.
  *  Based on the original concept of Stripper2 by botman
  *
@@ -15,7 +15,7 @@
 #include <sh_list.h>
 #include "IStripper.h"
 
-#define STRIPPER_VERSION		"1.02"
+#define STRIPPER_VERSION		"1.0.3"
 
 class StripperPlugin : 
 	public ISmmPlugin, 
@@ -84,6 +84,5 @@ PLUGIN_GLOBALVARS();
 
 const char *GetMapEntitiesString_handler();
 bool LevelInit_handler(char const *pMapName, char const *pMapEntities, char const *c, char const *d, bool e, bool f);
-void UTIL_PathFmt(char *buffer, size_t len, const char *fmt, ...);
 
 #endif //_INCLUDE_SAMPLEPLUGIN_H
