@@ -60,7 +60,9 @@ void *StripperPlugin::OnEngineQuery(const char *iface, int *ret)
 	if (strcmp(iface, STRIPPER_INTERFACE) == 0)
 	{
 		if (ret)
+		{
 			*ret = IFACE_OK;
+		}
 		return (void *)(static_cast<IStripper *>(&g_Plugin));
 	}
 
@@ -72,7 +74,9 @@ void *StripperPlugin::OnMetamodQuery(const char *iface, int *ret)
 	if (strcmp(iface, STRIPPER_INTERFACE)==0)
 	{
 		if (ret)
+		{
 			*ret = IFACE_OK;
+		}
 		return (void *)(static_cast<IStripper *>(&g_Plugin));
 	}
 
@@ -83,7 +87,9 @@ bool StripperPlugin::Unload(char *error, size_t maxlen)
 {
 	List<IStripperListener *>::iterator iter, end;
 	for (iter=m_hooks.begin(); iter!=m_hooks.end(); iter++)
+	{
 		(*iter)->Unloading();
+	}
 
 	m_hooks.clear();
 
@@ -105,9 +111,9 @@ const char *StripperPlugin::ParseAndFilter(const char *map, const char *ents)
 	g_SMAPI->PathFormat(path, sizeof(path)-1, "%s/addons/stripper/global_filters.cfg", gamedir);
 	fp = fopen(path, "rt");
 	if (!fp)
-		META_LOG(g_PLAPI, "Could not find global filter file: %s", path);
-	else
 	{
+		META_LOG(g_PLAPI, "Could not find global filter file: %s", path);
+	} else {
 		fclose(fp);
 		g_Stripper.ApplyFileFilter(path);
 	}
@@ -122,7 +128,9 @@ const char *StripperPlugin::ParseAndFilter(const char *map, const char *ents)
 
 	List<IStripperListener *>::iterator iter, end;
 	for (iter=m_hooks.begin(); iter!=m_hooks.end(); iter++)
+	{
 		(*iter)->OnMapInitialize(map);
+	}
 
 	return g_Stripper.ToString();
 }
@@ -168,11 +176,15 @@ void StripperPlugin::AllPluginsLoaded()
 		while (pBase)
 		{
 			if (strcmp(pBase->GetName(), "sv_cheats")==0)
+			{
 				break;
+			}
 			pBase = const_cast<ConCommandBase *>(pBase->GetNext());
 		}
 		if (pBase)
+		{
 			sv_cheats = (ConVar *)pBase;
+		}
 	}
 }
 
