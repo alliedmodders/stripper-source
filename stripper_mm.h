@@ -13,9 +13,10 @@
 #include <ISmmPlugin.h>
 #include <sh_string.h>
 #include <sh_list.h>
+#include <sh_stack.h>
 #include "IStripper.h"
 
-#define STRIPPER_VERSION		"1.0.3"
+#define STRIPPER_VERSION		"1.1"
 
 class StripperPlugin : 
 	public ISmmPlugin, 

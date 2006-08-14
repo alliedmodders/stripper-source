@@ -14,6 +14,16 @@
 #include <sh_list.h>
 #include <pcre.h>
 
+struct CACHEABLE
+{
+#if defined _DEBUG
+	CACHEABLE() : marked(true), last_alloc(0), last_free(0) { };
+	bool marked;
+	int last_alloc;
+	int last_free;
+#endif
+};
+
 struct parse_pair
 {
 	SourceHook::String key;
@@ -21,10 +31,18 @@ struct parse_pair
 	pcre *re;
 };
 
-struct ent_prop
+struct ent_prop : public CACHEABLE
 {
 	SourceHook::String key;
 	SourceHook::String val;
+};
+
+struct replace_prop
+{
+	SourceHook::List<parse_pair *> match;
+	SourceHook::List<parse_pair *> to_replace;
+	SourceHook::List<parse_pair *> to_remove;
+	SourceHook::List<parse_pair *> to_insert;
 };
 
 class Stripper
@@ -39,8 +57,17 @@ public:
 private:
 	void RunRemoveFilter(SourceHook::List<parse_pair *> &filters);
 	void RunAddFilter(SourceHook::List<parse_pair *> &list);
+	void RunReplaceFilter(replace_prop &replace, SourceHook::List<parse_pair *> &props);
 	void Clear();
 	void _BuildPropList();
+private:
+	SourceHook::String *AllocString();
+	void FreeString(SourceHook::String *str);
+	ent_prop *AllocProp();
+	void FreeProp(ent_prop *prop);
+private:
+	SourceHook::CStack<SourceHook::String *> m_StringCache;
+	SourceHook::CStack<ent_prop *> m_PropCache;
 private:
 	SourceHook::String m_tostring;
 	SourceHook::List<SourceHook::List<ent_prop *> *> m_props;
