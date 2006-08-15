@@ -24,21 +24,12 @@ ConVar *sv_cheats = NULL;
 SH_DECL_HOOK0(IVEngineServer, GetMapEntitiesString, SH_NOATTRIB, 0, const char *);
 SH_DECL_HOOK6(IServerGameDLL, LevelInit, SH_NOATTRIB, 0, bool, char const *, char const *, char const *, char const *, bool, bool);
 
-#define GET_V_IFACE(v_factory, v_var, v_type, v_name) \
-	v_var = (v_type *)ismm->VInterfaceMatch(ismm->v_factory(), v_name); \
-	if (!v_var) { \
-		if (error && maxlen) { \
-			snprintf(error, maxlen, "Could not find interface: %s", v_name); \
-		} \
-		return false; \
-	}
-
 bool StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, bool late)
 {
 	PLUGIN_SAVEVARS();
 
-	GET_V_IFACE(serverFactory, server, IServerGameDLL, INTERFACEVERSION_SERVERGAMEDLL);
-	GET_V_IFACE(engineFactory, engine, IVEngineServer, INTERFACEVERSION_VENGINESERVER);
+	GET_V_IFACE_ANY(serverFactory, server, IServerGameDLL, INTERFACEVERSION_SERVERGAMEDLL);
+	GET_V_IFACE_CURRENT(engineFactory, engine, IVEngineServer, INTERFACEVERSION_VENGINESERVER);
 
 	SH_ADD_HOOK_STATICFUNC(IVEngineServer, GetMapEntitiesString, engine, GetMapEntitiesString_handler, false);
 	SH_ADD_HOOK_STATICFUNC(IServerGameDLL, LevelInit, server, LevelInit_handler, false);

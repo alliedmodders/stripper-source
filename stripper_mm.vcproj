@@ -71,6 +71,11 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				GlobalOptimizations="TRUE"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="TRUE"
+				FavorSizeOrSpeed="2"
+				OmitFramePointers="TRUE"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;stripper_MM_EXPORTS;PCRE_STATIC"
 				RuntimeLibrary="4"
 				UsePrecompiledHeader="0"
