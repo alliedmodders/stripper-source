@@ -360,7 +360,6 @@ void Stripper::RunRemoveFilter(SourceHook::List<parse_pair *> &filters)
 	ent_prop *e;
 
 	int ovector[30];
-	bool remove = false;
 	size_t num_match = 0;
 
 	pair_iter_begin = filters.end();
@@ -599,6 +598,10 @@ void Stripper::ApplyFileFilter(const char *file)
 				assert(submode != SubMode_None);
 				switch (submode)
 				{
+				case SubMode_None:
+					{
+						break;
+					}
 				case SubMode_Insert:
 					{
 						replace.to_insert = props;

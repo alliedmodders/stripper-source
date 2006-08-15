@@ -67,3 +67,8 @@ CON_COMMAND(stripper_dump, "Dumps the map entity list to a file")
 
 	META_LOG(g_PLAPI, "Logged map %s to file %s", g_mapname.c_str(), file);
 }
+
+#if !defined HAS_TIER1_LIB
+#include "convar.cpp"
+#endif
+
