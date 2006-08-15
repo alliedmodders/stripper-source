@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STRIPPER_MM_EXPORTS;PCRE_STATIC"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;STRIPPER_MM_EXPORTS;PCRE_STATIC;HAS_TIER1_LIB"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="5"
@@ -76,7 +76,7 @@
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="2"
 				OmitFramePointers="TRUE"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;stripper_MM_EXPORTS;PCRE_STATIC"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;stripper_MM_EXPORTS;PCRE_STATIC;HAS_TIER1_LIB"
 				RuntimeLibrary="4"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
