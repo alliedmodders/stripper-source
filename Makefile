@@ -2,7 +2,7 @@
 # Makefile written by David "BAILOPAN" Anderson
 
 HL2SDK = ../../../sourcemm/hl2sdk
-SMM_ROOT = ../../../sourcemm
+SMM_ROOT = ../../../sourcemm/trunk
 SRCDS = ~/srcds
 LIBPCRE = ../../../pcre-6.7
 
@@ -22,7 +22,7 @@ HL2PUB = $(HL2SDK)/public
 
 INCLUDE = -I. -I.. -I$(HL2PUB) -I$(HL2PUB)/dlls -I$(HL2PUB)/engine -I$(HL2PUB)/tier0 -I$(HL2PUB)/tier1 \
 	-I$(HL2PUB)/vstdlib -I$(HL2SDK)/tier1 -I$(SMM_ROOT) -I$(SMM_ROOT)/sourcehook -I$(SMM_ROOT)/sourcemm \
-	-I$(LIBPCRE) -L$(LIBPCRE)/.libs
+	-I$(LIBPCRE) -L$(LIBPCRE)/.libs -I$(SMM_ROOT)/sourcemm 
 
 ifeq "$(DEBUG)" "true"
 	BIN_DIR = Debug
