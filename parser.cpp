@@ -362,7 +362,7 @@ void Stripper::RunRemoveFilter(SourceHook::List<parse_pair *> &filters)
 	int ovector[30];
 	size_t num_match = 0;
 
-	pair_iter_begin = filters.end();
+	pair_iter_begin = filters.begin();
 	pair_iter_end = filters.end();
 	proplist_iter = m_props.begin();
 	while (proplist_iter != m_props.end())
@@ -564,6 +564,8 @@ void Stripper::ApplyFileFilter(const char *file)
 			continue;
 		if (strncmp(buffer, "filter:", 7) == 0)
 		{
+			mode = Mode_Filter;
+		} else if (strncmp(buffer, "remove:", 7) == 0) {
 			mode = Mode_Filter;
 		} else if (strncmp(buffer, "add:", 4) == 0) {
 			mode = Mode_Add;
