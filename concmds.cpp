@@ -7,6 +7,7 @@
  *  ============================
  */
 
+#include <convar.h>
 #include "stripper_mm.h"
 #include "parser.h"
 #if defined WIN32
@@ -67,4 +68,3 @@ CON_COMMAND(stripper_dump, "Dumps the map entity list to a file")
 
 	META_LOG(g_PLAPI, "Logged map %s to file %s", g_mapname.c_str(), file);
 }
-

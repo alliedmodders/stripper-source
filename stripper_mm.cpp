@@ -23,6 +23,23 @@ ConVar *sv_cheats = NULL;
 SH_DECL_HOOK0(IVEngineServer, GetMapEntitiesString, SH_NOATTRIB, 0, const char *);
 SH_DECL_HOOK6(IServerGameDLL, LevelInit, SH_NOATTRIB, 0, bool, char const *, char const *, char const *, char const *, bool, bool);
 
+#if !defined ORANGEBOX_BUILD
+ICvar *g_pCVar = NULL;
+#endif
+
+ICvar *GetICVar()
+{
+#if defined METAMOD_PLAPI_VERSION
+#if defined ORANGEBOX_BUILD
+	return (ICvar *)((g_SMAPI->GetEngineFactory())(CVAR_INTERFACE_VERSION, NULL));
+#else
+	return (ICvar *)((g_SMAPI->GetEngineFactory())(VENGINE_CVAR_INTERFACE_VERSION, NULL));
+#endif
+#else
+	return (ICvar *)((g_SMAPI->engineFactory())(VENGINE_CVAR_INTERFACE_VERSION, NULL));
+#endif
+}
+
 bool StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, bool late)
 {
 	PLUGIN_SAVEVARS();
@@ -41,6 +58,7 @@ bool StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen
 	ismm->AddListener(this, this);
 
 #if defined ORANGEBOX_BUILD
+	g_pCVar = GetICVar();
 	ConVar_Register(0, this);
 #else
 	ConCommandBaseMgr::OneTimeInit(this);
@@ -168,18 +186,9 @@ bool StripperPlugin::Unpause(char *error, size_t maxlen)
 
 void StripperPlugin::AllPluginsLoaded()
 {
-#if defined METAMOD_PLAPI_VERSION
-#if defined ORANGEBOX_BUILD
-	ICvar *icvar = (ICvar *)((g_SMAPI->GetEngineFactory())(CVAR_INTERFACE_VERSION, NULL));
-#else
-	ICvar *icvar = (ICvar *)((g_SMAPI->GetEngineFactory())(VENGINE_CVAR_INTERFACE_VERSION, NULL));
-#endif
-#else
-	ICvar *icvar = (ICvar *)((g_SMAPI->engineFactory())(VENGINE_CVAR_INTERFACE_VERSION, NULL));
-#endif
-	if (icvar)
+	if (g_pCVar != NULL)
 	{
-		ConCommandBase *pBase = icvar->GetCommands();
+		ConCommandBase *pBase = g_pCVar->GetCommands();
 		while (pBase)
 		{
 			if (strcmp(pBase->GetName(), "sv_cheats")==0)
