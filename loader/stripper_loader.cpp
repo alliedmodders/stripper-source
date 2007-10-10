@@ -13,7 +13,7 @@
 inline bool IsPathSepChar(char c) { return (c == '/' || c == '\\'); }
 #else
 #define EXPORT extern "C" __attribute__((visibility("default")))
-#define PLATFORM_EXT		"_i486.so"
+#define PLATFORM_EXT		".so"
 #define PATH_SEP_CHAR		"/"
 #define LoadLibrary(x)		dlopen(x, RTLD_NOW)
 #define GetProcAddress(x,s)	dlsym(x,s)
@@ -23,9 +23,9 @@ typedef void *		HINSTANCE;
 inline bool IsPathSepChar(char c) { return (c == '/'); }
 #endif
 
-#define MMS_1_4_EP1_FILE		"stripper.14.ep1"
-#define MMS_1_6_EP1_FILE		"stripper.16.ep1"
-#define MMS_1_6_EP2_FILE		"stripper.16.ep2"
+#define MMS_1_4_EP1_FILE		"stripper.14.ep1" PLATFORM_EXT
+#define MMS_1_6_EP1_FILE		"stripper.16.ep1" PLATFORM_EXT
+#define MMS_1_6_EP2_FILE		"stripper.16.ep2" PLATFORM_EXT
 
 HINSTANCE stripper_library = NULL;
 
@@ -121,7 +121,7 @@ EXPORT METAMOD_PLUGIN *CreateInterface_MMS(const MetamodVersionInfo *mvi, const 
 	}
 
 	char our_path[256];
-	UTIL_Format(our_path, sizeof(our_path), "%s" PATH_SEP_CHAR MMS_1_4_EP1_FILE, mli->pl_path);
+	UTIL_Format(our_path, sizeof(our_path), "%s" PATH_SEP_CHAR "%s", mli->pl_path, file);
 
 	return TryAndLoadLibrary(our_path);
 }
