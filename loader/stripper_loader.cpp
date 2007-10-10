@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
 #include <ISmmPluginExt.h>
 
 #if defined _MSC_VER
@@ -139,7 +140,7 @@ EXPORT void *CreateInterface(const char *pName, int *pReturnCode)
 	if (strcmp(pName, METAMOD_PLAPI_NAME) == 0)
 	{
 		char our_file[256];
-		if (!GetFileOfAddress(CreateInterface_MMS, our_file, sizeof(our_file)))
+		if (!GetFileOfAddress((void *)CreateInterface_MMS, our_file, sizeof(our_file)))
 		{
 			return NULL;
 		}
