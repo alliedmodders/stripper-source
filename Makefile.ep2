@@ -1,10 +1,10 @@
 #(C)2004-2006 SourceMM Development Team
 # Makefile written by David "BAILOPAN" Anderson
 
-HL2SDK = ../../../sourcemm/hl2sdk
+HL2SDK = ../../../sourcemm/hl2sdk-ob
 SMM_ROOT = ../../../sourcemm/trunk
 SRCDS = ~/srcds
-LIBPCRE = ../../../pcre-6.7
+LIBPCRE = ../../../pcre-7.4
 
 ### EDIT BELOW FOR OTHER PROJECTS ###
 
@@ -12,9 +12,9 @@ OPT_FLAGS = -O3 -funroll-loops -s -pipe -fvisibility=hidden -fvisibility-inlines
 GCC4_FLAGS = 
 DEBUG_FLAGS = -g -ggdb3
 CPP = gcc-4.1
-BINARY = stripper_mm_i486.so
+BINARY = stripper.16.ep2.so
 
-OBJECTS = stripper_mm.cpp parser.cpp concmds.cpp
+OBJECTS = stripper_mm.cpp parser.cpp concmds.cpp convar.cpp
 
 LINK = vstdlib_i486.so tier0_i486.so -static-libgcc $(LIBPCRE)/.libs/libpcre.a
 
@@ -34,7 +34,7 @@ endif
 
 GCC_VERSION := $(shell $(CPP) -dumpversion >&1 | cut -b1)
 
-CFLAGS += -D_LINUX -DNDEBUG -Dstricmp=strcasecmp -D_stricmp=strcasecmp -D_strnicmp=strncasecmp -Dstrnicmp=strncasecmp -D_snprintf=snprintf -D_vsnprintf=vsnprintf -D_alloca=alloca -Dstrcmpi=strcasecmp -Wall -Wno-non-virtual-dtor -Werror -fPIC -fno-exceptions -fno-rtti -msse
+CFLAGS += -D_LINUX -DNDEBUG -Dstricmp=strcasecmp -D_stricmp=strcasecmp -D_strnicmp=strncasecmp -Dstrnicmp=strncasecmp -D_snprintf=snprintf -D_vsnprintf=vsnprintf -D_alloca=alloca -Dstrcmpi=strcasecmp -Wall -Wno-non-virtual-dtor -Werror -fPIC -fno-exceptions -fno-rtti -msse -DORANGEBOX_BUILD -fno-strict-aliasing
 
 ifeq "$(GCC_VERSION)" "4"
 	CFLAGS += $(GCC4_FLAGS)
@@ -47,9 +47,10 @@ $(BIN_DIR)/%.o: %.cpp
 
 all:
 	mkdir -p $(BIN_DIR)
+	ln -sf $(HL2SDK)/tier1/convar.cpp convar.cpp
 	ln -sf $(SRCDS)/bin/vstdlib_i486.so vstdlib_i486.so
 	ln -sf $(SRCDS)/bin/tier0_i486.so tier0_i486.so
-	$(MAKE) sourcemm
+	$(MAKE) -f Makefile.ep2 sourcemm
 	rm -rf $(BINARY)
 	ln -sf $(BIN_DIR)/$(BINARY) $(BINARY)
 
@@ -57,7 +58,7 @@ sourcemm: $(OBJ_LINUX)
 	$(CPP) $(INCLUDE) $(CFLAGS) $(OBJ_LINUX) $(LINK) -shared -ldl -lm -o$(BIN_DIR)/$(BINARY)
 
 debug:	
-	$(MAKE) all DEBUG=true
+	$(MAKE) -f Makefile.ep2 all DEBUG=true
 
 default: all
 
@@ -66,3 +67,4 @@ clean:
 	rm -rf Release/$(BINARY)
 	rm -rf Debug/*.o
 	rm -rf Debug/$(BINARY)
+

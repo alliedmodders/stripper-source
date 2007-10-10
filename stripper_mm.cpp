@@ -7,7 +7,6 @@
  *  ============================
  */
 
-#include <oslink.h>
 #include "stripper_mm.h"
 #include "parser.h"
 
@@ -28,15 +27,24 @@ bool StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen
 {
 	PLUGIN_SAVEVARS();
 
+#if defined METAMOD_PLAPI_VERSION
+	GET_V_IFACE_ANY(GetServerFactory, server, IServerGameDLL, INTERFACEVERSION_SERVERGAMEDLL);
+	GET_V_IFACE_CURRENT(GetEngineFactory, engine, IVEngineServer, INTERFACEVERSION_VENGINESERVER);
+#else
 	GET_V_IFACE_ANY(serverFactory, server, IServerGameDLL, INTERFACEVERSION_SERVERGAMEDLL);
 	GET_V_IFACE_CURRENT(engineFactory, engine, IVEngineServer, INTERFACEVERSION_VENGINESERVER);
+#endif
 
 	SH_ADD_HOOK_STATICFUNC(IVEngineServer, GetMapEntitiesString, engine, GetMapEntitiesString_handler, false);
 	SH_ADD_HOOK_STATICFUNC(IServerGameDLL, LevelInit, server, LevelInit_handler, false);
 
 	ismm->AddListener(this, this);
 
+#if defined ORANGEBOX_BUILD
+	ConVar_Register(0, this);
+#else
 	ConCommandBaseMgr::OneTimeInit(this);
+#endif
 
 	return true;
 }
@@ -160,7 +168,15 @@ bool StripperPlugin::Unpause(char *error, size_t maxlen)
 
 void StripperPlugin::AllPluginsLoaded()
 {
+#if defined METAMOD_PLAPI_VERSION
+#if defined ORANGEBOX_BUILD
+	ICvar *icvar = (ICvar *)((g_SMAPI->GetEngineFactory())(CVAR_INTERFACE_VERSION, NULL));
+#else
+	ICvar *icvar = (ICvar *)((g_SMAPI->GetEngineFactory())(VENGINE_CVAR_INTERFACE_VERSION, NULL));
+#endif
+#else
 	ICvar *icvar = (ICvar *)((g_SMAPI->engineFactory())(VENGINE_CVAR_INTERFACE_VERSION, NULL));
+#endif
 	if (icvar)
 	{
 		ConCommandBase *pBase = icvar->GetCommands();
