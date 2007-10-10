@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "loader", "loader.vcproj", "{D0789DE2-C3C1-450B-B213-96B3EDCD9D60}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D0789DE2-C3C1-450B-B213-96B3EDCD9D60}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D0789DE2-C3C1-450B-B213-96B3EDCD9D60}.Debug|Win32.Build.0 = Debug|Win32
+		{D0789DE2-C3C1-450B-B213-96B3EDCD9D60}.Release|Win32.ActiveCfg = Release|Win32
+		{D0789DE2-C3C1-450B-B213-96B3EDCD9D60}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
