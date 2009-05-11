@@ -1,11 +1,11 @@
 #(C)2004-2006 SourceMM Development Team
 # Makefile written by David "BAILOPAN" Anderson
 
-SMM_ROOT = ../../../../sourcemm/trunk
+MMSOURCE = ../../../../mmsource-1.7
 
 ### EDIT BELOW FOR OTHER PROJECTS ###
 
-OPT_FLAGS = -O3 -funroll-loops -s -pipe -fvisibility=hidden -fvisibility-inlines-hidden
+OPT_FLAGS = -O3 -funroll-loops -pipe -fvisibility=hidden -fvisibility-inlines-hidden
 GCC4_FLAGS = 
 DEBUG_FLAGS = -g -ggdb3
 CPP = gcc-4.1
@@ -17,7 +17,7 @@ LINK = -static-libgcc
 
 HL2PUB = $(HL2SDK)/public
 
-INCLUDE = -I. -I.. -I$(SMM_ROOT)/sourcemm
+INCLUDE = -I. -I.. -I$(MMSOURCE)/core
 
 ifeq "$(DEBUG)" "true"
 	BIN_DIR = Debug
