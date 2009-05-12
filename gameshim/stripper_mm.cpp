@@ -9,6 +9,12 @@
  * ===================================
  */
 
+#include <stdio.h>
+#ifdef WIN32
+#include <windows.h>
+#define snprintf _snprintf
+#define vsnprintf _vsnprintf
+#endif
 #include "stripper_mm.h"
 #include "intercom.h"
 #include "icommandline.h"
@@ -130,7 +136,12 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
     stripper_game.game_path = game_path;
     stripper_game.stripper_path = "addons/stripper";
 
+#if SOURCE_ENGINE==SE_DARKMESSIAH
+	ICvar* cvar = GetICVar();
+	const char* temp = (cvar == NULL) ? NULL : cvar->GetCommandLineValue("+stripper_path");
+#else
     const char* temp = CommandLine()->ParmValue("+stripper_path");
+#endif
     if (temp != NULL && temp[0] != '\0')
     {
         g_SMAPI->PathFormat(stripper_path, sizeof(stripper_path), "%s", temp);
@@ -164,8 +175,8 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
                 NULL,
                 dw,
                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                buffer,
-                maxlength,
+                error,
+                maxlen,
                 NULL) == 0)
         {
             _snprintf(error, maxlen, "Unknown error: %d", dw);

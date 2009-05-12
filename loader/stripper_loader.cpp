@@ -74,6 +74,7 @@ METAMOD_PLUGIN *TryAndLoadLibrary(const char *path)
 {
 	if ((stripper_library = LoadLibrary(path)) == NULL)
 	{
+		DWORD dw = GetLastError();
 		return NULL;
 	}
 
