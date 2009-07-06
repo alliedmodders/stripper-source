@@ -83,6 +83,9 @@ Stripper::Stripper()
     int err_no;
     brk_re = pcre_compile(pattern, 0, &error, &err_no, NULL);
     brk_re_extra = pcre_study(brk_re, 0, &error);
+    m_tostring = NULL;
+    m_tostring_len = 0;
+    m_tostring_maxlen = 0;
 }
 
 Stripper::~Stripper()
@@ -99,6 +102,8 @@ Stripper::~Stripper()
         delete m_PropCache.front();
         m_PropCache.pop();
     }
+    
+    free(m_tostring);
 }
 
 SourceHook::String *Stripper::AllocString()
@@ -148,9 +153,9 @@ void Stripper::SetEntityList(const char *ents)
     Clear();
     
     m_resync = false;
-    m_tostring.assign(ents);
+    AppendToString(ents, strlen(ents));
 
-    size_t len = m_tostring.size();
+    size_t len = m_tostring_len;
     char *_tmp = NULL;
     size_t _tmpsize = 0;
     size_t pos = 0;
@@ -464,6 +469,11 @@ void Stripper::_BuildPropList()
             in_block = false;
             m_props.push_back(cl);
             cl = NULL;
+            if (*(s->c_str() + 1) == '{')
+            {
+                in_block = true;
+                cl = new List<ent_prop *>();
+            }
         } else {
             /* try to match our precompiled expression for "..." "..." */
             int rc = pcre_exec(brk_re, brk_re_extra, s->c_str(), s->size(), 0, 0, ovector, 30);
@@ -745,10 +755,12 @@ const char *Stripper::ToString()
 {
     if (!m_resync)
     {
-        return m_tostring.c_str();
+        return m_tostring;
     }
 
-    m_tostring.clear();
+    if (m_tostring != NULL)
+        m_tostring[0] = '\0';
+    m_tostring_len = 0;
 
     List<List<ent_prop *> *>::iterator iter, end=m_props.end(), begin=m_props.begin();
     List<ent_prop *>::iterator eiter, eend;
@@ -759,25 +771,25 @@ const char *Stripper::ToString()
         eend = (*iter)->end();
         if (!first)
         {
-            m_tostring.append("\n");
+            AppendToString("\n", 1);
         } else {
             first = true;
         }
-        m_tostring.append("{\n");
+        AppendToString("{\n", 2);
         for (eiter=(*iter)->begin(); eiter!=eend; eiter++)
         {
-            m_tostring.append('"');
-            m_tostring.append( (*eiter)->key.c_str() );
-            m_tostring.append("\" \"");
-            m_tostring.append( (*eiter)->val.c_str() );
-            m_tostring.append("\"\n");
+            AppendToString("\"", 1);
+            AppendToString((*eiter)->key.c_str(), (*eiter)->key.size());
+            AppendToString("\" \"", 3);
+            AppendToString((*eiter)->val.c_str(), (*eiter)->val.size());
+            AppendToString("\"\n", 2);
         }
-        m_tostring.append("}");
+        AppendToString("}", 1);
     }
 
     m_resync = false;
 
-    return m_tostring.c_str();
+    return m_tostring;
 }
 
 void Stripper::Clear()
@@ -814,5 +826,23 @@ void Stripper::Clear()
     }
 
     m_props.clear();
-    m_tostring.clear();
+    if (m_tostring != NULL)
+        m_tostring[0] = '\0';
+    m_tostring_len = 0;
 }
+
+void Stripper::AppendToString(const char* buf, size_t len)
+{
+    if (m_tostring_len + len + 1 > m_tostring_maxlen)
+    {
+        if (m_tostring_maxlen == 0)
+            m_tostring_maxlen = 512;
+        while (m_tostring_maxlen < m_tostring_len + len + 1)
+            m_tostring_maxlen += m_tostring_maxlen / 2;
+        m_tostring = (char*)realloc(m_tostring, m_tostring_maxlen);
+    }
+    memcpy(m_tostring + m_tostring_len, buf, len);
+    m_tostring_len += len;
+    m_tostring[m_tostring_len] = '\0';
+}
+

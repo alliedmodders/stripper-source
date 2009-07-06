@@ -70,8 +70,11 @@ private:
 private:
     SourceHook::CStack<SourceHook::String *> m_StringCache;
     SourceHook::CStack<ent_prop *> m_PropCache;
+    void AppendToString(const char* buf, size_t len);
 private:
-    SourceHook::String m_tostring;
+    char* m_tostring;
+    size_t m_tostring_len;
+    size_t m_tostring_maxlen;
     SourceHook::List<SourceHook::List<ent_prop *> *> m_props;
     SourceHook::List<SourceHook::String *> m_lines;
     bool m_resync;
