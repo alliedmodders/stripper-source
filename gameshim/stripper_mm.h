@@ -16,7 +16,7 @@
 #include <sh_list.h>
 #include <sh_stack.h>
 
-#define STRIPPER_VERSION        "1.2"
+#define STRIPPER_VERSION        "1.2.1"
 
 class StripperPlugin : 
     public ISmmPlugin, 
