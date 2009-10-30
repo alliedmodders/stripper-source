@@ -13,6 +13,7 @@ Global
 		Debug|Win32 = Debug|Win32
 		Release - Dark Messiah|Win32 = Release - Dark Messiah|Win32
 		Release - Episode 1|Win32 = Release - Episode 1|Win32
+		Release - Left 4 Dead 2|Win32 = Release - Left 4 Dead 2|Win32
 		Release - Left 4 Dead|Win32 = Release - Left 4 Dead|Win32
 		Release - Old Metamod|Win32 = Release - Old Metamod|Win32
 		Release - Orange Box|Win32 = Release - Orange Box|Win32
@@ -35,6 +36,8 @@ Global
 		{B3E797CF-4E77-4C9D-B8A8-7589B6902206}.Release - Dark Messiah|Win32.Build.0 = Release - Dark Messiah|Win32
 		{B3E797CF-4E77-4C9D-B8A8-7589B6902206}.Release - Episode 1|Win32.ActiveCfg = Release - Episode 1|Win32
 		{B3E797CF-4E77-4C9D-B8A8-7589B6902206}.Release - Episode 1|Win32.Build.0 = Release - Episode 1|Win32
+		{B3E797CF-4E77-4C9D-B8A8-7589B6902206}.Release - Left 4 Dead 2|Win32.ActiveCfg = Release - Left 4 Dead 2|Win32
+		{B3E797CF-4E77-4C9D-B8A8-7589B6902206}.Release - Left 4 Dead 2|Win32.Build.0 = Release - Left 4 Dead 2|Win32
 		{B3E797CF-4E77-4C9D-B8A8-7589B6902206}.Release - Left 4 Dead|Win32.ActiveCfg = Release - Left 4 Dead|Win32
 		{B3E797CF-4E77-4C9D-B8A8-7589B6902206}.Release - Left 4 Dead|Win32.Build.0 = Release - Left 4 Dead|Win32
 		{B3E797CF-4E77-4C9D-B8A8-7589B6902206}.Release - Old Metamod|Win32.ActiveCfg = Release - Old Metamod|Win32
