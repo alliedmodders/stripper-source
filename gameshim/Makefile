@@ -3,10 +3,12 @@
 
 SMSDK = ..
 SRCDS_BASE = ~/srcds
-HL2SDK_ORIG = ../../../../hl2sdk
-HL2SDK_OB = ../../../../hl2sdk-ob
-HL2SDK_L4D = ../../../../hl2sdk-l4d
-MMSOURCE17 = ../../../../mmsource-1.7
+HL2SDK_ORIG = ../../hl2sdk
+HL2SDK_OB = ../../hl2sdk-ob
+HL2SDK_L4D = ../../hl2sdk-l4d
+HL2SDK_L4D2 = ../../hl2sdk-l4d2
+MMSOURCE17 = ../../mmsource-1.7
+MMSOURCE18 = ../../mmsource-1.8
 
 #####################################
 ### EDIT BELOW FOR OTHER PROJECTS ###
@@ -34,6 +36,7 @@ ifeq "$(ENGINE)" "original"
 	INCLUDE += -I$(HL2SDK)/public/dlls
 	SRCDS = $(SRCDS_BASE)
 	BINARY = stripper.14.ep1.so
+	EXT = i486
 	override ENGSET = true
 endif
 ifeq "$(ENGINE)" "orangebox"
@@ -45,6 +48,7 @@ ifeq "$(ENGINE)" "orangebox"
 	INCLUDE += -I$(HL2SDK)/public/game/server
 	SRCDS = $(SRCDS_BASE)/orangebox
 	BINARY = stripper.16.ep2.so
+	EXT = i486
 	override ENGSET = true
 endif
 ifeq "$(ENGINE)" "left4dead"
@@ -56,13 +60,26 @@ ifeq "$(ENGINE)" "left4dead"
 	INCLUDE += -I$(HL2SDK)/public/game/server
 	SRCDS = $(SRCDS_BASE)/l4d
 	BINARY = stripper.16.l4d.so
+	EXT = i486
+	override ENGSET = true
+endif
+ifeq "$(ENGINE)" "left4dead2"
+	HL2SDK = $(HL2SDK_L4D2)
+	HL2PUB = $(HL2SDK)/public
+	HL2LIB = $(HL2SDK)/lib/linux
+	CFLAGS += -DSOURCE_ENGINE=7
+	METAMOD = $(MMSOURCE18)/core
+	INCLUDE += -I$(HL2SDK)/public/game/server
+	SRCDS = $(SRCDS_BASE)/left4dead2_demo
+	BINARY = stripper.16.l4d2.so
+	EXT = linux
 	override ENGSET = true
 endif
 
-CFLAGS += -DSE_EPISODEONE=1 -DSE_DARKMESSIAH=2 -DSE_ORANGEBOX=3 -DSE_LEFT4DEAD=4
+CFLAGS += -DSE_EPISODEONE=1 -DSE_DARKMESSIAH=2 -DSE_ORANGEBOX=3 -DSE_LEFT4DEAD=4 -DSE_LEFT4DEAD2=7
 
-LINK += $(HL2LIB)/tier1_i486.a $(HL2LIB)/mathlib_i486.a vstdlib_i486.so \
-	tier0_i486.so -lpthread -static-libgcc
+LINK += $(HL2LIB)/tier1_i486.a $(HL2LIB)/mathlib_i486.a vstdlib_$(EXT).so \
+	tier0_$(EXT).so -lpthread -static-libgcc
 	
 INCLUDE += -I. -I$(HL2PUB) -I$(HL2PUB)/engine -I$(HL2PUB)/mathlib -I$(HL2PUB)/vstdlib \
 	-I$(HL2PUB)/tier0 -I$(HL2PUB)/tier1 -I$(METAMOD) -I$(METAMOD)/sourcehook \
@@ -103,8 +120,8 @@ $(BIN_DIR)/%.o: %.c
 all: check
 	mkdir -p $(BIN_DIR)/systems
 	mkdir -p $(BIN_DIR)/thread
-	ln -sf $(SRCDS)/bin/vstdlib_i486.so vstdlib_i486.so;
-	ln -sf $(SRCDS)/bin/tier0_i486.so tier0_i486.so;
+	ln -sf $(SRCDS)/bin/vstdlib_$(EXT).so vstdlib_$(EXT).so;
+	ln -sf $(SRCDS)/bin/tier0_$(EXT).so tier0_$(EXT).so;
 	$(MAKE) -f Makefile sourcemod
 
 check:
