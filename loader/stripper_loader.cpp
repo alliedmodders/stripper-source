@@ -26,6 +26,7 @@ inline bool IsPathSepChar(char c) { return (c == '/'); }
 #define MMS_1_4_EP1_FILE		"stripper.14.ep1" PLATFORM_EXT
 #define MMS_1_6_EP1_FILE		"stripper.16.ep1" PLATFORM_EXT
 #define MMS_1_6_EP2_FILE		"stripper.16.ep2" PLATFORM_EXT
+#define MMS_1_6_EP2V_FILE		"stripper.16.ep2v" PLATFORM_EXT
 #define MMS_1_6_L4D_FILE		"stripper.16.l4d" PLATFORM_EXT
 #define MMS_1_6_L4D2_FILE		"stripper.16.l4d2" PLATFORM_EXT
 #define MMS_1_6_DARKM_FILE		"stripper.16.darkm" PLATFORM_EXT
@@ -114,6 +115,9 @@ EXPORT METAMOD_PLUGIN *CreateInterface_MMS(const MetamodVersionInfo *mvi, const 
 	{
 		case SOURCE_ENGINE_ORANGEBOX:
 			file = MMS_1_6_EP2_FILE;
+			break;
+		case SOURCE_ENGINE_ORANGEBOXVALVE:
+			file = MMS_1_6_EP2V_FILE;
 			break;
 		case SOURCE_ENGINE_ORIGINAL:
 		case SOURCE_ENGINE_EPISODEONE:

@@ -2,9 +2,9 @@
 # Makefile written by David "BAILOPAN" Anderson
 
 SMSDK = ..
-SRCDS_BASE = ~/srcds
 HL2SDK_ORIG = ../../hl2sdk
 HL2SDK_OB = ../../hl2sdk-ob
+HL2SDK_OB_VALVE = ../../hl2sdk-ob-valve
 HL2SDK_L4D = ../../hl2sdk-l4d
 HL2SDK_L4D2 = ../../hl2sdk-l4d2
 MMSOURCE17 = ../../mmsource-1.7
@@ -34,9 +34,8 @@ ifeq "$(ENGINE)" "original"
 	CFLAGS += -DSOURCE_ENGINE=1
 	METAMOD = $(MMSOURCE17)/core-legacy
 	INCLUDE += -I$(HL2SDK)/public/dlls
-	SRCDS = $(SRCDS_BASE)
 	BINARY = stripper.14.ep1.so
-	EXT = i486
+	LIB_SUFFIX = _i486.so
 	override ENGSET = true
 endif
 ifeq "$(ENGINE)" "orangebox"
@@ -46,9 +45,20 @@ ifeq "$(ENGINE)" "orangebox"
 	CFLAGS += -DSOURCE_ENGINE=3 -DORANGEBOX_BUILD
 	METAMOD = $(MMSOURCE17)/core
 	INCLUDE += -I$(HL2SDK)/public/game/server
-	SRCDS = $(SRCDS_BASE)/orangebox
 	BINARY = stripper.16.ep2.so
-	EXT = i486
+	LIB_SUFFIX = _i486.so
+	override ENGSET = true
+endif
+ifeq "$(ENGINE)" "orangeboxvalve"
+	HL2SDK = $(HL2SDK_OB_VALVE)
+	HL2PUB = $(HL2SDK)/public
+	HL2LIB = $(HL2SDK)/lib/linux
+	CFLAGS += -DSOURCE_ENGINE=3 -DORANGEBOX_BUILD
+	METAMOD = $(MMSOURCE17)/core
+	INCLUDE += -I$(HL2SDK)/public/game/server
+	BINARY = stripper.16.ep2v.so
+	LIB_PREFIX = lib
+	LIB_SUFFIX = .so
 	override ENGSET = true
 endif
 ifeq "$(ENGINE)" "left4dead"
@@ -58,9 +68,8 @@ ifeq "$(ENGINE)" "left4dead"
 	CFLAGS += -DSOURCE_ENGINE=4
 	METAMOD = $(MMSOURCE17)/core
 	INCLUDE += -I$(HL2SDK)/public/game/server
-	SRCDS = $(SRCDS_BASE)/l4d
 	BINARY = stripper.16.l4d.so
-	EXT = i486
+	LIB_SUFFIX = _i486.so
 	override ENGSET = true
 endif
 ifeq "$(ENGINE)" "left4dead2"
@@ -70,16 +79,18 @@ ifeq "$(ENGINE)" "left4dead2"
 	CFLAGS += -DSOURCE_ENGINE=7
 	METAMOD = $(MMSOURCE18)/core
 	INCLUDE += -I$(HL2SDK)/public/game/server
-	SRCDS = $(SRCDS_BASE)/left4dead2_demo
 	BINARY = stripper.16.l4d2.so
-	EXT = linux
+	LIB_PREFIX = lib
+	LIB_SUFFIX = .so
 	override ENGSET = true
 endif
 
 CFLAGS += -DSE_EPISODEONE=1 -DSE_DARKMESSIAH=2 -DSE_ORANGEBOX=3 -DSE_LEFT4DEAD=4 -DSE_LEFT4DEAD2=7
 
-LINK += $(HL2LIB)/tier1_i486.a $(HL2LIB)/mathlib_i486.a vstdlib_$(EXT).so \
-	tier0_$(EXT).so -lpthread -static-libgcc
+LINK += $(HL2LIB)/tier1_i486.a $(HL2LIB)/mathlib_i486.a \
+		$(LIB_PREFIX)vstdlib$(LIB_SUFFIX) \
+		$(LIB_PREFIX)tier0$(LIB_SUFFIX) \
+		-lpthread -static-libgcc
 	
 INCLUDE += -I. -I$(HL2PUB) -I$(HL2PUB)/engine -I$(HL2PUB)/mathlib -I$(HL2PUB)/vstdlib \
 	-I$(HL2PUB)/tier0 -I$(HL2PUB)/tier1 -I$(METAMOD) -I$(METAMOD)/sourcehook \
@@ -120,8 +131,8 @@ $(BIN_DIR)/%.o: %.c
 all: check
 	mkdir -p $(BIN_DIR)/systems
 	mkdir -p $(BIN_DIR)/thread
-	ln -sf $(SRCDS)/bin/vstdlib_$(EXT).so vstdlib_$(EXT).so;
-	ln -sf $(SRCDS)/bin/tier0_$(EXT).so tier0_$(EXT).so;
+	ln -sf $(HL2LIB)/$(LIB_PREFIX)vstdlib$(LIB_SUFFIX) .;
+	ln -sf $(HL2LIB)/$(LIB_PREFIX)tier0$(LIB_SUFFIX) .;
 	$(MAKE) -f Makefile sourcemod
 
 check:
