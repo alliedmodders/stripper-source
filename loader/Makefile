@@ -8,12 +8,12 @@ MMSOURCE = ../../mmsource-1.8
 OPT_FLAGS = -O3 -funroll-loops -pipe -fvisibility=hidden -fvisibility-inlines-hidden
 GCC4_FLAGS = 
 DEBUG_FLAGS = -g -ggdb3
-CPP = gcc-4.1
-BINARY = stripper_mm_i486.so
+CPP = gcc
+PROJECT = stripper_mm
 
 OBJECTS = stripper_loader.cpp
 
-LINK = -static-libgcc 
+LINK = -static-libgcc -m32
 
 HL2PUB = $(HL2SDK)/public
 
@@ -29,10 +29,19 @@ endif
 
 GCC_VERSION := $(shell $(CPP) -dumpversion >&1 | cut -b1)
 
-CFLAGS += -D_LINUX -DNDEBUG -Dstricmp=strcasecmp -D_stricmp=strcasecmp -D_strnicmp=strncasecmp -Dstrnicmp=strncasecmp -D_snprintf=snprintf -D_vsnprintf=vsnprintf -D_alloca=alloca -Dstrcmpi=strcasecmp -Wall -Wno-non-virtual-dtor -Werror -fPIC -fno-exceptions -fno-rtti -msse
+CFLAGS += -D_LINUX -DNDEBUG -Dstricmp=strcasecmp -D_stricmp=strcasecmp -D_strnicmp=strncasecmp -Dstrnicmp=strncasecmp -D_snprintf=snprintf -D_vsnprintf=vsnprintf -D_alloca=alloca -Dstrcmpi=strcasecmp -Wall -Wno-non-virtual-dtor -Werror -fPIC -fno-exceptions -fno-rtti -msse -m32
 
 ifeq "$(GCC_VERSION)" "4"
 	CFLAGS += $(GCC4_FLAGS)
+endif
+
+OS := $(shell uname -s)
+ifeq "$(OS)" "Darwin"
+	LINK += -dynamiclib
+	BINARY = $(PROJECT).dylib
+else
+	LINK += -static-libgcc -shared
+	BINARY = $(PROJECT)_i486.so
 endif
 
 OBJ_LINUX := $(OBJECTS:%.cpp=$(BIN_DIR)/%.o)
@@ -47,7 +56,7 @@ all:
 	ln -sf $(BIN_DIR)/$(BINARY) $(BINARY)
 
 sourcemm: $(OBJ_LINUX)
-	$(CPP) $(INCLUDE) $(CFLAGS) $(OBJ_LINUX) $(LINK) -shared -ldl -lm -o$(BIN_DIR)/$(BINARY)
+	$(CPP) $(INCLUDE) $(CFLAGS) $(OBJ_LINUX) $(LINK) -shared -ldl -lm -o $(BIN_DIR)/$(BINARY)
 
 debug:	
 	$(MAKE) all DEBUG=true

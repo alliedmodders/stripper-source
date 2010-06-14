@@ -24,7 +24,7 @@ C_OPT_FLAGS = -DNDEBUG -O3 -funroll-loops -pipe -fno-strict-aliasing
 C_DEBUG_FLAGS = -D_DEBUG -DDEBUG -g -ggdb3
 C_GCC4_FLAGS = -fvisibility=hidden
 CPP_GCC4_FLAGS = -fvisibility-inlines-hidden
-CPP = gcc-4.1
+CPP = g++
 
 override ENGSET = false
 ifeq "$(ENGINE)" "original"
@@ -35,7 +35,6 @@ ifeq "$(ENGINE)" "original"
 	METAMOD = $(MMSOURCE17)/core-legacy
 	INCLUDE += -I$(HL2SDK)/public/dlls
 	BINARY = stripper.14.ep1.so
-	LIB_SUFFIX = _i486.so
 	override ENGSET = true
 endif
 ifeq "$(ENGINE)" "orangebox"
@@ -46,7 +45,6 @@ ifeq "$(ENGINE)" "orangebox"
 	METAMOD = $(MMSOURCE17)/core
 	INCLUDE += -I$(HL2SDK)/public/game/server
 	BINARY = stripper.16.ep2.so
-	LIB_SUFFIX = _i486.so
 	override ENGSET = true
 endif
 ifeq "$(ENGINE)" "orangeboxvalve"
@@ -57,8 +55,6 @@ ifeq "$(ENGINE)" "orangeboxvalve"
 	METAMOD = $(MMSOURCE17)/core
 	INCLUDE += -I$(HL2SDK)/public/game/server
 	BINARY = stripper.16.ep2v.so
-	LIB_PREFIX = lib
-	LIB_SUFFIX = .so
 	override ENGSET = true
 endif
 ifeq "$(ENGINE)" "left4dead"
@@ -69,7 +65,6 @@ ifeq "$(ENGINE)" "left4dead"
 	METAMOD = $(MMSOURCE17)/core
 	INCLUDE += -I$(HL2SDK)/public/game/server
 	BINARY = stripper.16.l4d.so
-	LIB_SUFFIX = _i486.so
 	override ENGSET = true
 endif
 ifeq "$(ENGINE)" "left4dead2"
@@ -80,8 +75,6 @@ ifeq "$(ENGINE)" "left4dead2"
 	METAMOD = $(MMSOURCE18)/core
 	INCLUDE += -I$(HL2SDK)/public/game/server
 	BINARY = stripper.16.l4d2.so
-	LIB_PREFIX = lib
-	LIB_SUFFIX = .so
 	override ENGSET = true
 endif
 
@@ -119,6 +112,28 @@ ifeq "$(GCC_VERSION)" "4"
 	CPPFLAGS += $(CPP_GCC4_FLAGS)
 endif
 
+OS := $(shell uname -s)
+
+ifeq "$(OS)" "Darwin"
+	LIB_EXT = dylib
+	HL2LIB = $(HL2SDK)/lib/mac
+else
+	LIB_EXT = so
+	ifeq "$(ENGINE)" "original"
+		HL2LIB = $(HL2SDK)/linux_sdk
+	else
+		HL2LIB = $(HL2SDK)/lib/linux
+	endif
+endif
+
+# if ENGINE is orig, OB, or L4D
+ifneq (,$(filter original orangebox left4dead,$(ENGINE)))
+	LIB_SUFFIX = _i486.$(LIB_EXT)
+else
+	LIB_PREFIX = lib
+	LIB_SUFFIX = .$(LIB_EXT)
+endif
+
 OBJ_LINUX := $(OBJECTS:%.cpp=$(BIN_DIR)/%.o)
 OBJ_LINUX := $(OBJ_LINUX:%.c=$(BIN_DIR)/%.o)
 
@@ -142,7 +157,7 @@ check:
 	fi
 
 sourcemod: check $(OBJ_LINUX)
-	$(CPP) $(INCLUDE) $(OBJ_LINUX) $(LINK) -m32 -shared -ldl -lm -o$(BIN_DIR)/$(BINARY)
+	$(CPP) $(INCLUDE) $(OBJ_LINUX) $(LINK) -m32 -shared -ldl -lm -o $(BIN_DIR)/$(BINARY)
 
 debug:
 	$(MAKE) -f Makefile all DEBUG=true

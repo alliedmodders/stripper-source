@@ -150,6 +150,8 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
 
 #if defined __linux__
 #define PLATFORM_EXT    ".so"
+#elif defined __APPLE__
+#define PLATFORM_EXT    ".dylib"
 #else
 #define PLATFORM_EXT    ".dll"
 #endif
@@ -166,7 +168,7 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
     stripper_lib = dlopen(path, RTLD_NOW);
     if (stripper_lib == NULL)
     {
-#if defined __linux__
+#if defined __linux__ || defined __APPLE__
         snprintf(error, maxlen, "%s", dlerror());
 #elif defined WIN32
         DWORD dw = GetLastError();
