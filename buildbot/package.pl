@@ -27,7 +27,7 @@ chdir($path);
 require 'helpers.pm';
 
 #Switch to the output folder.
-chdir(Build::PathFormat('../../../OUTPUT/package'));
+chdir(Build::PathFormat('../../OUTPUT/package'));
 
 my ($version);
 
