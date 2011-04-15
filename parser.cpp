@@ -9,7 +9,7 @@
  * ===================================
  */
 
-#include <pcre.h>
+#include "pcre.h"
 #include <sh_stack.h>
 #include <ctype.h>
 #include "parser.h"

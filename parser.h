@@ -14,7 +14,7 @@
 #include <sh_string.h>
 #include <sh_list.h>
 #include <sh_stack.h>
-#include <pcre.h>
+#include "pcre.h"
 
 struct CACHEABLE
 {

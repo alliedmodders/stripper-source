@@ -1,0 +1,26 @@
+# vim: set ts=2 sw=2 tw=99 noet ft=python: 
+import os.path
+
+compiler = Stripper.DefaultCompiler()
+
+files = [
+	'parser.cpp',
+	'support.cpp'
+	]
+
+if AMBuild.target['platform'] == 'linux':
+	path = os.path.join(AMBuild.sourceFolder, 'pcre', 'libpcre-linux.a')
+elif AMBuild.target['platform'] == 'windows':
+	path = os.path.join(AMBuild.sourceFolder, 'pcre', 'libpcre-windows.lib')
+elif AMBuild.target['platform'] == 'darwin':
+	path = os.path.join(AMBuild.sourceFolder, 'pcre', 'libpcre-darwin.a')
+
+name = 'stripper.core'
+loader = AMBuild.AddJob(name)
+binary = Cpp.LibraryBuilder(name, AMBuild, loader, compiler)
+binary.RelinkIfNewer(path)
+binary['POSTLINKFLAGS'].append(path)
+binary.AddSourceFiles('.', files)
+Stripper.AutoVersion('strippercore', binary)
+binary.SendToJob()
+
