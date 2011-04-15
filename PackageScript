@@ -100,7 +100,10 @@ def AddHL2Library(name, dest):
 pdb_list = []
 
 # Copy loader binaries
-AddNormalLibrary('stripper_mm', 'bin')
+if AMBuild.target['platform'] == 'linux':
+	AddNormalLibrary('stripper_mm_i486', 'bin')
+else:
+	AddNormalLibrary('stripper_mm', 'bin')
 AddNormalLibrary('stripper.core', 'bin')
 AddHL2Library('stripper', 'bin')
 
