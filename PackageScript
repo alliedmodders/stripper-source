@@ -82,6 +82,8 @@ job.AddCommand(CopyFile(os.path.join(AMBuild.sourceFolder, 'de_dust.cfg'),
                         os.path.join('addons', 'stripper', 'maps')))
 job.AddCommand(CopyFile(os.path.join(AMBuild.sourceFolder, 'global_filters.cfg'),
                         os.path.join('addons', 'stripper')))
+job.AddCommand(CopyFile(os.path.join(AMBuild.sourceFolder, 'stripper.vdf'),
+                        os.path.join('addons', 'metamod')))
 
 bincopies = []
 
