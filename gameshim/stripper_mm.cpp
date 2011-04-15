@@ -206,7 +206,7 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
     SH_ADD_HOOK_STATICFUNC(IServerGameDLL, LevelInit, server, LevelInit_handler, false);
     SH_ADD_HOOK_STATICFUNC(IServerGameClients, SetCommandClient, clients, SetCommandClient, false);
 
-#if SOURCE_ENGINE==SE_ORANGEBOX || SOURCE_ENGINE==SE_LEFT4DEAD || SOURCE_ENGINE==SE_LEFT4DEAD2 || SOURCE_ENGINE==SE_ORANGEBOXVALVE \\
+#if SOURCE_ENGINE==SE_ORANGEBOX || SOURCE_ENGINE==SE_LEFT4DEAD || SOURCE_ENGINE==SE_LEFT4DEAD2 || SOURCE_ENGINE==SE_ORANGEBOXVALVE \
     SOURCE_ENGINE==SE_ALIENSWARM
     g_pCVar = GetICVar();
     ConVar_Register(0, this);
