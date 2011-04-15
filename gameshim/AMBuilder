@@ -19,7 +19,6 @@ for i in Stripper.sdkInfo:
 		'stripper_mm.cpp'
 		])
 	Stripper.PostSetupHL2Job(extension, binary, i)
-	Stripper.AutoVersion('gameshim', binary)
 	binary.SendToJob()
 
 
