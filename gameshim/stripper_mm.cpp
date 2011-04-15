@@ -18,6 +18,7 @@
 #include "stripper_mm.h"
 #include "intercom.h"
 #include "icommandline.h"
+#include <stripper_version_auto.h>
 
 using namespace SourceHook;
 
@@ -45,7 +46,7 @@ ICvar*
 GetICVar()
 {
 #if defined METAMOD_PLAPI_VERSION
-#if SOURCE_ENGINE==SE_ORANGEBOX || SOURCE_ENGINE==SE_LEFT4DEAD || SOURCE_ENGINE==SE_LEFT4DEAD2
+#if SOURCE_ENGINE==SE_ORANGEBOX || SOURCE_ENGINE==SE_LEFT4DEAD || SOURCE_ENGINE==SE_LEFT4DEAD2 || SOURCE_ENGINE==SE_ORANGEBOXVALVE
     return (ICvar *)((g_SMAPI->GetEngineFactory())(CVAR_INTERFACE_VERSION, NULL));
 #else
     return (ICvar *)((g_SMAPI->GetEngineFactory())(VENGINE_CVAR_INTERFACE_VERSION, NULL));
@@ -204,7 +205,7 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
     SH_ADD_HOOK_STATICFUNC(IServerGameDLL, LevelInit, server, LevelInit_handler, false);
     SH_ADD_HOOK_STATICFUNC(IServerGameClients, SetCommandClient, clients, SetCommandClient, false);
 
-#if SOURCE_ENGINE==SE_ORANGEBOX || SOURCE_ENGINE==SE_LEFT4DEAD || SOURCE_ENGINE==SE_LEFT4DEAD2
+#if SOURCE_ENGINE==SE_ORANGEBOX || SOURCE_ENGINE==SE_LEFT4DEAD || SOURCE_ENGINE==SE_LEFT4DEAD2 || SOURCE_ENGINE==SE_ORANGEBOXVALVE
     g_pCVar = GetICVar();
     ConVar_Register(0, this);
 #else
@@ -291,7 +292,7 @@ StripperPlugin::GetLicense()
 const char*
 StripperPlugin::GetVersion()
 {
-    return STRIPPER_VERSION;
+    return STRIPPER_FULL_VERSION;
 }
 
 const char*
@@ -320,7 +321,7 @@ SetCommandClient(int client)
     last_command_client = client;
 }
 
-ConVar stripper_version("stripper_version", STRIPPER_VERSION, FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY, "Stripper Version");
+ConVar stripper_version("stripper_version", STRIPPER_FULL_VERSION, FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY, "Stripper Version");
 
 CON_COMMAND(stripper_dump, "Dumps the map entity list to a file")
 {

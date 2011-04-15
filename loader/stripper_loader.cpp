@@ -30,6 +30,8 @@ inline bool IsPathSepChar(char c) { return (c == '/'); }
 #define MMS_1_6_L4D_FILE		"stripper.16.l4d" PLATFORM_EXT
 #define MMS_1_6_L4D2_FILE		"stripper.16.l4d2" PLATFORM_EXT
 #define MMS_1_6_DARKM_FILE		"stripper.16.darkm" PLATFORM_EXT
+#define MMS_1_6_SWARM_FILE		"stripper.16.swarm" PLATFORM_EXT
+#define MMS_1_6_BGT_FILE		"stripper.16.bgt" PLATFORM_EXT
 
 HINSTANCE stripper_library = NULL;
 
@@ -131,6 +133,12 @@ EXPORT METAMOD_PLUGIN *CreateInterface_MMS(const MetamodVersionInfo *mvi, const 
 			break;
 		case SOURCE_ENGINE_DARKMESSIAH:
 			file = MMS_1_6_DARKM_FILE;
+			break;
+		case SOURCE_ENGINE_ALIENSWARM:
+			file = MMS_1_6_SWARM_FILE;
+			break;
+		case SOURCE_ENGINE_BLOODYGOODTIME:
+			file = MMS_1_6_BGT_FILE;
 			break;
 	}
 

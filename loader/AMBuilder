@@ -1,0 +1,23 @@
+# vim: set ts=2 sw=2 tw=99 noet ft=python: 
+import os.path
+
+compiler = Stripper.DefaultCompiler()
+compiler['CXXINCLUDES'].append(os.path.join(Stripper.mmsPath, 'core'))
+
+if AMBuild.target['platform'] == 'windows' or AMBuild.target['platform'] == 'darwin':
+	name = 'stripper_mm'
+elif AMBuild.target['platform'] == 'linux':
+	name = 'stripper_mm_i486'
+	compiler['POSTLINKFLAGS'].extend(['-ldl'])
+
+files = [
+	'stripper_loader.cpp',
+	]
+
+loader = AMBuild.AddJob(name)
+binary = Cpp.LibraryBuilder(name, AMBuild, loader, compiler)
+binary.AddSourceFiles('loader', files)
+Stripper.AutoVersion('loader', binary)
+binary.SendToJob()
+
+
