@@ -8,7 +8,6 @@ chdir($path);
 require 'helpers.pm';
 
 chdir('..');
-chdir('..');
 
 open(PDBLOG, '../OUTPUT/pdblog.txt') or die "Could not open pdblog.txt: $!\n";
 
