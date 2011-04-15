@@ -21,6 +21,5 @@ binary = Cpp.LibraryBuilder(name, AMBuild, loader, compiler)
 binary.RelinkIfNewer(path)
 binary['POSTLINKFLAGS'].append(path)
 binary.AddSourceFiles('.', files)
-Stripper.AutoVersion('strippercore', binary)
 binary.SendToJob()
 

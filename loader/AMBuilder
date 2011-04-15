@@ -17,7 +17,6 @@ files = [
 loader = AMBuild.AddJob(name)
 binary = Cpp.LibraryBuilder(name, AMBuild, loader, compiler)
 binary.AddSourceFiles('loader', files)
-Stripper.AutoVersion('loader', binary)
 binary.SendToJob()
 
 
