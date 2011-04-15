@@ -18,7 +18,7 @@ $version =~ s/-dev//g;
 $version .= '-hg' . Build::HgRevNum('.');
 
 my ($build_type);
-$build_type = Build::GetBuildType(Build::PathFormat('support/buildbot/build_type'));
+$build_type = Build::GetBuildType(Build::PathFormat('buildbot/build_type'));
 
 if ($build_type eq "dev")
 {
