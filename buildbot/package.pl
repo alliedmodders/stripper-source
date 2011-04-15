@@ -65,7 +65,7 @@ else
 }
 
 my ($major,$minor) = ($version =~ /^(\d+)\.(\d+)/);
-$ftp_path .= "/$major.$minor";
+$ftp_path .= "/stripper/$major.$minor";
 
 my ($ftp);
 
