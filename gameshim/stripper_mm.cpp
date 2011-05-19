@@ -33,6 +33,7 @@ static SourceHook::String g_mapname;
 static stripper_core_t stripper_core;
 static char game_path[256];
 static char stripper_path[256];
+static char stripper_cfg_path[256];
 
 SH_DECL_HOOK0(IVEngineServer, GetMapEntitiesString, SH_NOATTRIB, 0, const char *);
 SH_DECL_HOOK6(IServerGameDLL, LevelInit, SH_NOATTRIB, 0, bool, char const *, char const *, char const *, char const *, bool, bool);
@@ -114,10 +115,23 @@ static stripper_game_t stripper_game =
 {
     NULL,
     NULL,
+    NULL,
     log_message,
     path_format,
     get_map_name,
 };
+
+ConVar cvar_stripper_cfg_path("stripper_cfg_path", "addons/stripper", FCVAR_NONE, "Stripper Config Path");
+
+#if SOURCE_ENGINE >= SE_ORANGEBOX
+void stripper_cfg_path_changed(IConVar *var, const char *pOldValue, float flOldValue)
+#else
+void stripper_cfg_path_changed(ConVar *var, const char *pOldValue)
+#endif
+{
+    strncpy(stripper_cfg_path, cvar_stripper_cfg_path.GetString(), sizeof(stripper_cfg_path));
+}
+
 
 bool
 StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, bool late)
@@ -137,6 +151,10 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
     engine->GetGameDir(game_path, sizeof(game_path));
     stripper_game.game_path = game_path;
     stripper_game.stripper_path = "addons/stripper";
+    stripper_game.stripper_cfg_path = stripper_cfg_path;
+    strncpy(stripper_cfg_path, cvar_stripper_cfg_path.GetString(), sizeof(stripper_cfg_path));
+
+    cvar_stripper_cfg_path.InstallChangeCallback( stripper_cfg_path_changed );
 
 #if SOURCE_ENGINE==SE_DARKMESSIAH
 	ICvar* cvar = GetICVar();
