@@ -45,7 +45,7 @@ parse_map(const char* map, const char* entities)
             sizeof(path),
             "%s/%s/global_filters.cfg",
             stripper_game.game_path,
-            stripper_game.stripper_path);
+            stripper_game.stripper_cfg_path);
     fp = fopen(path, "rt");
     if (fp == NULL)
     {
@@ -61,7 +61,7 @@ parse_map(const char* map, const char* entities)
             sizeof(path),
             "%s/%s/maps/%s.cfg",
             stripper_game.game_path,
-            stripper_game.stripper_path,
+            stripper_game.stripper_cfg_path,
             map);
     fp = fopen(path, "rt");
     if (fp)
