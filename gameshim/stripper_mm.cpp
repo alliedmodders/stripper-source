@@ -121,8 +121,6 @@ static stripper_game_t stripper_game =
     get_map_name,
 };
 
-class IConVar;
-
 ConVar cvar_stripper_cfg_path("stripper_cfg_path", "addons/stripper", FCVAR_NONE, "Stripper Config Path");
 
 void stripper_cfg_path_changed(IConVar *var, const char *pOldValue, float flOldValue)
@@ -150,7 +148,7 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
     stripper_game.stripper_path = "addons/stripper";
 	stripper_game.stripper_cfg_path = stripper_cfg_path;
 	strncpy(stripper_cfg_path, cvar_stripper_cfg_path.GetString(), sizeof(stripper_cfg_path));
-    cvar_stripper_cfg_path.InstallChangeCallback(stripper_cfg_path_changed);
+    cvar_stripper_cfg_path.InstallChangeCallback( stripper_cfg_path_changed );
 
 #if SOURCE_ENGINE==SE_DARKMESSIAH
 	ICvar* cvar = GetICVar();
