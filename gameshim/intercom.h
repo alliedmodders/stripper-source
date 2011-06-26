@@ -15,7 +15,6 @@ struct stripper_game_t
 {
     const char* game_path;
     const char* stripper_path;
-    const char* stripper_cfg_path;
     void (*log_message)(const char *fmt, ...);
     void (*path_format)(char* buffer, size_t maxlength, const char* fmt, ...);
     const char* (*get_map_name)();
