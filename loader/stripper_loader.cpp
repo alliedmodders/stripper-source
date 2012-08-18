@@ -32,6 +32,7 @@ inline bool IsPathSepChar(char c) { return (c == '/'); }
 #define MMS_1_6_DARKM_FILE		"stripper.16.darkm" PLATFORM_EXT
 #define MMS_1_6_SWARM_FILE		"stripper.16.swarm" PLATFORM_EXT
 #define MMS_1_6_BGT_FILE		"stripper.16.bgt" PLATFORM_EXT
+#define MMS_1_6_CSGO_FILE		"stripper.16.csgo" PLATFORM_EXT
 
 HINSTANCE stripper_library = NULL;
 
@@ -139,6 +140,9 @@ EXPORT METAMOD_PLUGIN *CreateInterface_MMS(const MetamodVersionInfo *mvi, const 
 			break;
 		case SOURCE_ENGINE_BLOODYGOODTIME:
 			file = MMS_1_6_BGT_FILE;
+			break;
+		case SOURCE_ENGINE_CSGO:
+			file = MMS_1_6_CSGO_FILE;
 			break;
 	}
 
