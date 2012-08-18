@@ -25,16 +25,19 @@ class Stripper:
 		                         'name': 'ALIENSWARM',     'platform': ['windows']}
 		self.sdkInfo['bgt'] =   {'sdk': 'HL2SDK-BGT',      'ext': '16.bgt', 'def': '4',
 		                         'name': 'BLOODYGOODTIME', 'platform': ['windows']}
+		self.sdkInfo['csgo'] =  {'sdk': 'HL2SDKCSGO',      'ext': '16.csgo',  'def': '12',
+								 'name': 'CSGO',          'platform': ['windows', 'linux']}
 
 		if AMBuild.mode == 'config':
 			#Detect compilers
 			self.compiler.DetectAll(AMBuild)
 
 			#Detect variables
-			envvars = { 'MMSOURCE18': 'mmsource-1.8' }
+			envvars = { 'MMSOURCE19': 'mmsource-1.9' }
 			if AMBuild.target['platform'] != 'darwin':
 				envvars['HL2SDK'] = 'hl2sdk'
 				envvars['HL2SDKOB'] = 'hl2sdk-ob'
+				envvars['HL2SDKCSGO'] = 'hl2sdk-csgo'
 
 			envvars['HL2SDKOBVALVE'] = 'hl2sdk-ob-valve'
 			envvars['HL2SDKL4D'] = 'hl2sdk-l4d'
@@ -187,7 +190,7 @@ class Stripper:
 			self.compiler.AddToListVar('RCINCLUDES', os.path.join(AMBuild.sourceFolder, 'public'))
 			self.compiler.AddToListVar('RCINCLUDES',
 			                           os.path.join(AMBuild.outputFolder, 'includes'))
-		self.mmsPath = AMBuild.cache['MMSOURCE18']
+		self.mmsPath = AMBuild.cache['MMSOURCE19']
 
 	def DefaultCompiler(self):
 		compiler = self.compiler.Clone()
@@ -223,18 +226,22 @@ class Stripper:
 			else:
 				staticLibs = os.path.join(sdkPath, 'lib', 'linux')
 			workFolder = os.path.join(AMBuild.outputFolder, job.workFolder)
-			if sdk in ['ep2v', 'l4d', 'l4d2']:
-				for i in ['tier1_i486.a', 'mathlib_i486.a', 'libvstdlib.so', 'libtier0.so']:
-					link = os.path.join(workFolder, i)
-					target = os.path.join(staticLibs, i)
+			if sdk in ['ep2v', 'l4d', 'l4d2', 'csgo']:
+				libs = ['tier1_i486.a', 'mathlib_i486.a', 'libvstdlib.so', 'libtier0.so']
+				if sdk == 'csgo':
+					libs.append('interfaces_i486.a')
+				for lib in libs:
+					link = os.path.join(workFolder, lib)
+					target = os.path.join(staticLibs, lib)
 					try:
 						os.lstat(link)
 					except:
 						job.AddCommand(SymlinkCommand(link, target))
 			else:
-				for i in ['tier1_i486.a', 'mathlib_i486.a', 'vstdlib_i486.so', 'tier0_i486.so']:
-					link = os.path.join(workFolder, i)
-					target = os.path.join(staticLibs, i)
+				libs = ['tier1_i486.a', 'mathlib_i486.a', 'vstdlib_i486.so', 'tier0_i486.so']
+				for lib in libs:
+					link = os.path.join(workFolder, lib)
+					target = os.path.join(staticLibs, lib)
 					try:
 						os.lstat(link)
 					except:
@@ -242,16 +249,19 @@ class Stripper:
 		elif AMBuild.target['platform'] == 'darwin':
 			staticLibs = os.path.join(sdkPath, 'lib', 'mac')
 			workFolder = os.path.join(AMBuild.outputFolder, job.workFolder)
-			for i in ['tier1_i486.a', 'mathlib_i486.a', 'libvstdlib.dylib', 'libtier0.dylib']:
-				link = os.path.join(workFolder, i)
-				target = os.path.join(staticLibs, i)
+			libs = ['tier1_i486.a', 'mathlib_i486.a', 'libvstdlib.dylib', 'libtier0.dylib']
+			if sdk == 'csgo':
+				libs.append('interfaces_i486.a')
+			for lib in libs:
+				link = os.path.join(workFolder, lib)
+				target = os.path.join(staticLibs, lib)
 				try:
 					os.lstat(link)
 				except:
 					job.AddCommand(SymlinkCommand(link, target))
 		elif AMBuild.target['platform'] == 'windows':
 			libs = ['tier0', 'tier1', 'vstdlib', 'mathlib']
-			if sdk == 'swarm':
+			if sdk in ['swarm', 'csgo']:
 				libs.append('interfaces')
 			for lib in libs:
 				libPath = os.path.join(sdkPath, 'lib', 'public', lib) + '.lib'
@@ -261,6 +271,8 @@ class Stripper:
 	def PostSetupHL2Job(self, job, builder, sdk):
 		if AMBuild.target['platform'] in ['linux', 'darwin']:
 			builder.AddObjectFiles(['tier1_i486.a', 'mathlib_i486.a'])
+				if sdk == 'csgo':
+					builder.AddObjectFiles(['interfaces_i486.a'])
 
 	def DefaultHL2Compiler(self, path, sdk, noLink = False, oldMms = '-legacy'):
 		compiler = self.DefaultCompiler()
@@ -290,8 +302,11 @@ class Stripper:
 
 		compiler['CDEFINES'].append('SOURCE_ENGINE=' + info['def'])
 
-		if sdk == 'swarm' and AMBuild.target['platform'] == 'windows':
-			compiler['CDEFINES'].extend(['COMPILER_MSVC', 'COMPILER_MSVC32'])
+		if sdk in ['swarm','csgo']:
+			if AMBuild.target['platform'] == 'windows':
+				compiler['CDEFINES'].extend(['COMPILER_MSVC', 'COMPILER_MSVC32'])
+			else:
+				compiler['CDEFINES'].extend(['COMPILER_GCC', 'POSIX'])
 
 		if sdk == 'ep1':
 			if AMBuild.target['platform'] == 'linux':
@@ -308,7 +323,7 @@ class Stripper:
 		if not noLink:
 			if AMBuild.target['platform'] == 'linux':
 				compiler['POSTLINKFLAGS'][0:0] = ['-lm']
-				if sdk in ['ep2v', 'l4d', 'l4d2']:
+				if sdk in ['ep2v', 'l4d', 'l4d2', 'csgo']:
 					compiler['POSTLINKFLAGS'][0:0] = ['libtier0.so']
 					compiler['POSTLINKFLAGS'][0:0] = ['libvstdlib.so']
 				else:
