@@ -173,7 +173,7 @@ EXPORT void *CreateInterface(const char *pName, int *pReturnCode)
 
 		/* Go backwards and get the first token */
 		size_t len = strlen(our_file);
-		for (size_t i = len - 1; i >= 0 && i < len; i--)
+		for (size_t i = len - 1; i-- > 0;)
 		{
 			if (IsPathSepChar(our_file[i]))
 			{
