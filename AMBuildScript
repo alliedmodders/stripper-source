@@ -271,8 +271,8 @@ class Stripper:
 	def PostSetupHL2Job(self, job, builder, sdk):
 		if AMBuild.target['platform'] in ['linux', 'darwin']:
 			builder.AddObjectFiles(['tier1_i486.a', 'mathlib_i486.a'])
-				if sdk == 'csgo':
-					builder.AddObjectFiles(['interfaces_i486.a'])
+			if sdk == 'csgo':
+				builder.AddObjectFiles(['interfaces_i486.a'])
 
 	def DefaultHL2Compiler(self, path, sdk, noLink = False, oldMms = '-legacy'):
 		compiler = self.DefaultCompiler()
