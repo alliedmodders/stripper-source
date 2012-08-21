@@ -19,6 +19,44 @@ our ($root) = getcwd();
 
 my $reconf = 0;
 
+if ($^O eq "linux") {
+	#my @sdks = ('sourcemod-1.3', 'mmsource-1.8', 'hl2sdk', 'hl2sdk-ob', 'hl2sdk-ob-valve', 'hl2sdk-l4d', 'hl2sdk-l4d2');
+	#my ($sdk);
+	#foreach $sdk (@sdks) {
+	#	print "Updating checkout of ", $sdk, " on ", $^O, "\n";
+	#	$result = `hg pull -u /home/builds/common/$sdk`;
+	#	print $result;
+	#}
+	
+	$ENV{'SOURCEMOD14'} = '/home/builds/common/sourcemod-1.4';
+	$ENV{'MMSOURCE19'} = '/home/builds/common/mmsource-1.9';
+	
+	$ENV{'HL2SDK'} = '/home/builds/common/hl2sdk';
+	$ENV{'HL2SDKOB'} = '/home/builds/common/hl2sdk-ob';
+	$ENV{'HL2SDKOBVALVE'} = '/home/builds/common/hl2sdk-ob-valve';
+	$ENV{'HL2SDKL4D'} = '/home/builds/common/hl2sdk-l4d';
+	$ENV{'HL2SDKL4D2'} = '/home/builds/common/hl2sdk-l4d2';
+	$ENV{'HL2SDKCSGO'} = '/home/builds/common/hl2sdk-csgo';
+} elsif ($^O eq "darwin") {
+	#my @sdks = ('sourcemod-1.3', 'mmsource-1.8', 'hl2sdk-ob-valve');
+	#my ($sdk);
+	#foreach $sdk (@sdks) {
+	#	print "Updating checkout of ", $sdk, " on ", $^O, "\n";
+	#	$result = `hg pull -u /Users/builds/slaves/common/$sdk`;
+	#	print $result;
+	#}
+	
+	$ENV{'SOURCEMOD14'} = '/Users/builds/slaves/common/sourcemod-1.4';
+	$ENV{'MMSOURCE18'} = '/Users/builds/slaves/common/mmsource-1.8';
+	$ENV{'MMSOURCE19'} = '/Users/builds/slaves/common/mmsource-central';
+	
+	$ENV{'HL2SDKOBVALVE'} = '/Users/builds/slaves/common/hl2sdk-ob-valve';
+} else {
+	#JUST IN CASE
+	#$ENV{'MMSOURCE19'} = "C:\\Scripts\\common\\mmsource-1.9";
+	#$ENV{'HL2SDKCSGO'} = "C:\\Scripts\\common\\hl2sdk-csgo";
+}
+
 #Create output folder if it doesn't exist.
 if (!(-d 'OUTPUT')) {
 	$reconf = 1;
