@@ -86,7 +86,7 @@ if ($reconf) {
 	if ($^O eq "linux") {
 		$result = `CC=gcc-4.1 CXX=gcc-4.1 python3.1 ../build/configure.py --enable-optimize`;
 	} elsif ($^O eq "darwin") {
-		$result = `CC=gcc-4.2 CXX=gcc-4.2 python3.1 ../build/configure.py --enable-optimize`;
+		$result = `CC=clang CXX=clang python3 ../build/configure.py --enable-optimize`;
 	} else {
 		$result = `C:\\Python31\\Python.exe ..\\build\\configure.py --enable-optimize`;
 	}
