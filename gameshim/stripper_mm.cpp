@@ -63,7 +63,9 @@ GetICVar()
 #define dlclose(x)      FreeLibrary(x)
 #define dlsym(x, y)     GetProcAddress(x, y)
 #else
-//typedef void*           HMODULE;
+#if SOURCE_ENGINE==SE_CSGO
+typedef void*           HMODULE;
+#endif
 #endif
 
 static HMODULE stripper_lib;
