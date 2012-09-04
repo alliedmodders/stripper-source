@@ -27,6 +27,8 @@ class Stripper:
 		                         'name': 'BLOODYGOODTIME', 'platform': ['windows']}
 		self.sdkInfo['csgo'] =  {'sdk': 'HL2SDKCSGO',      'ext': '16.csgo',  'def': '12',
 								 'name': 'CSGO',          'platform': ['windows', 'linux']}
+		self.sdkInfo['csgo'] =  {'sdk': 'HL2SDKCSS',      'ext': '16.css',  'def': '13',
+								 'name': 'CSS',          'platform': ['windows', 'linux', 'darwin']}
 
 		if AMBuild.mode == 'config':
 			#Detect compilers
@@ -42,6 +44,7 @@ class Stripper:
 			envvars['HL2SDKOBVALVE'] = 'hl2sdk-ob-valve'
 			envvars['HL2SDKL4D'] = 'hl2sdk-l4d'
 			envvars['HL2SDKL4D2'] = 'hl2sdk-l4d2'
+			envvars['HL2SDKCSS'] = 'hl2sdk-css'
 
 			#Dark Messiah is Windows-only
 			if AMBuild.target['platform'] == 'windows':
