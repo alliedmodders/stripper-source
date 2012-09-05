@@ -27,7 +27,7 @@ class Stripper:
 		                         'name': 'BLOODYGOODTIME', 'platform': ['windows']}
 		self.sdkInfo['csgo'] =  {'sdk': 'HL2SDKCSGO',      'ext': '16.csgo',  'def': '12',
 								 'name': 'CSGO',          'platform': ['windows', 'linux']}
-		self.sdkInfo['csgo'] =  {'sdk': 'HL2SDKCSS',      'ext': '16.css',  'def': '13',
+		self.sdkInfo['css'] =  {'sdk': 'HL2SDKCSS',      'ext': '16.css',  'def': '13',
 								 'name': 'CSS',          'platform': ['windows', 'linux', 'darwin']}
 
 		if AMBuild.mode == 'config':
