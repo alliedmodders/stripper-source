@@ -11,40 +11,62 @@ class Stripper:
 		self.sdkInfo = { }
 		self.sdkInfo['ep1'] =   {'sdk': 'HL2SDK',          'ext': '14.ep1',   'def': '1',
 		                         'name': 'EPISODEONE',     'platform': ['windows', 'linux']}
-		self.sdkInfo['ep2'] =   {'sdk': 'HL2SDKOB',        'ext': '16.ep2',   'def': '3',
-		                         'name': 'ORANGEBOX',      'platform': ['windows', 'linux']}
-		self.sdkInfo['ep2v'] =  {'sdk': 'HL2SDKOBVALVE',   'ext': '16.ep2v',  'def': '5',
-		                         'name': 'ORANGEBOXVALVE', 'platform': ['windows', 'linux', 'darwin']}
-		self.sdkInfo['l4d'] =   {'sdk': 'HL2SDKL4D',       'ext': '16.l4d',   'def': '6',
-		                         'name': 'LEFT4DEAD',      'platform': ['windows', 'linux', 'darwin']}
-		self.sdkInfo['l4d2'] =  {'sdk': 'HL2SDKL4D2',      'ext': '16.l4d2',  'def': '7',
-		                         'name': 'LEFT4DEAD2',     'platform': ['windows', 'linux', 'darwin']}
+		
 		self.sdkInfo['darkm'] = {'sdk': 'HL2SDK-DARKM',    'ext': '16.darkm', 'def': '2',
 		                         'name': 'DARKMESSIAH',    'platform': ['windows']}
-		self.sdkInfo['swarm'] = {'sdk': 'HL2SDK-SWARM',    'ext': '16.swarm', 'def': '8',
-		                         'name': 'ALIENSWARM',     'platform': ['windows']}
+					 
+		self.sdkInfo['ep2'] =   {'sdk': 'HL2SDKOB',        'ext': '16.ep2',   'def': '3',
+		                         'name': 'ORANGEBOX',      'platform': ['windows', 'linux']}
+								 
 		self.sdkInfo['bgt'] =   {'sdk': 'HL2SDK-BGT',      'ext': '16.bgt', 'def': '4',
 		                         'name': 'BLOODYGOODTIME', 'platform': ['windows']}
-		self.sdkInfo['csgo'] =  {'sdk': 'HL2SDKCSGO',      'ext': '16.csgo',  'def': '12',
-								 'name': 'CSGO',          'platform': ['windows', 'linux']}
-		self.sdkInfo['css'] =  {'sdk': 'HL2SDKCSS',      'ext': '16.css',  'def': '13',
-								 'name': 'CSS',          'platform': ['windows', 'linux', 'darwin']}
 
+		self.sdkInfo['css'] =   {'sdk': 'HL2SDKCSS',       'ext': '16.css',   'def': '6',
+		                         'name': 'CSS',            'platform': ['windows', 'linux', 'darwin']}
+								 
+		self.sdkInfo['hl2dm'] = {'sdk': 'HL2SDKHL2DM',     'ext': '16.hl2dm', 'def': '7',
+		                         'name': 'HL2DM',          'platform': ['windows', 'linux', 'darwin']}
+								 
+		self.sdkInfo['dods'] =  {'sdk': 'HL2SDKDODS',      'ext': '16.dods',  'def': '8',
+		                         'name': 'DODS',           'platform': ['windows', 'linux', 'darwin']}
+								 
+		self.sdkInfo['tf2'] =   {'sdk': 'HL2SDKTF2',       'ext': '16.tf2',   'def': '9',
+		                         'name': 'TF2',            'platform': ['windows', 'linux', 'darwin']}
+								 
+		self.sdkInfo['l4d'] =   {'sdk': 'HL2SDKL4D',       'ext': '16.l4d',   'def': '10',
+		                         'name': 'LEFT4DEAD',      'platform': ['windows', 'linux', 'darwin']}
+								 
+		self.sdkInfo['nd'] =    {'sdk': 'HL2SDKND',        'ext': '16.nd',    'def': '11',
+		                         'name': 'NUCLEARDAWN',    'platform': ['windows', 'linux', 'darwin']}
+								 
+		self.sdkInfo['l4d2'] =  {'sdk': 'HL2SDKL4D2',      'ext': '16.l4d2',  'def': '12',
+		                         'name': 'LEFT4DEAD2',     'platform': ['windows', 'linux', 'darwin']}
+								 
+		self.sdkInfo['swarm'] = {'sdk': 'HL2SDK-SWARM',    'ext': '16.swarm', 'def': '13',
+		                         'name': 'ALIENSWARM',     'platform': ['windows']}
+								 
+		self.sdkInfo['csgo'] =  {'sdk': 'HL2SDKCSGO',     'ext': '16.csgo',   'def': '15',
+		                         'name': 'CSGO',           'platform': ['windows', 'linux', 'darwin']}
+								 
 		if AMBuild.mode == 'config':
 			#Detect compilers
 			self.compiler.DetectAll(AMBuild)
 
 			#Detect variables
-			envvars = { 'MMSOURCE19': 'mmsource-1.9' }
+			envvars = { 'MMSOURCE110':   'mmsource-1.10',
+						'HL2SDKHL2DM': 	'hl2sdk-hl2dm',
+						'HL2SDKDODS': 	'hl2sdk-dods',
+						'HL2SDKTF2': 	'hl2sdk-tf2',
+						'HL2SDKND': 	'hl2sdk-nd',
+						'HL2SDKL4D': 	'hl2sdk-l4d',
+						'HL2SDKL4D2': 	'hl2sdk-l4d2',
+						'HL2SDKCSGO': 	'hl2sdk-csgo',
+						'HL2SDKCSS':    'hl2sdk-css',
+			}
+
 			if AMBuild.target['platform'] != 'darwin':
 				envvars['HL2SDK'] = 'hl2sdk'
 				envvars['HL2SDKOB'] = 'hl2sdk-ob'
-				envvars['HL2SDKCSGO'] = 'hl2sdk-csgo'
-
-			envvars['HL2SDKOBVALVE'] = 'hl2sdk-ob-valve'
-			envvars['HL2SDKL4D'] = 'hl2sdk-l4d'
-			envvars['HL2SDKL4D2'] = 'hl2sdk-l4d2'
-			envvars['HL2SDKCSS'] = 'hl2sdk-css'
 
 			#Dark Messiah is Windows-only
 			if AMBuild.target['platform'] == 'windows':
@@ -238,7 +260,7 @@ class Stripper:
 			else:
 				staticLibs = os.path.join(sdkPath, 'lib', 'linux')
 			workFolder = os.path.join(AMBuild.outputFolder, job.workFolder)
-			if sdk in ['ep2v', 'css', 'l4d2']:
+			if sdk in ['tf2', 'css', 'l4d2', 'hl2dm', 'dods', 'nd']:
 				libs = ['tier1_i486.a', 'mathlib_i486.a', 'libvstdlib_srv.so', 'libtier0_srv.so']
 				for lib in libs:
 					link = os.path.join(workFolder, lib)
@@ -344,7 +366,7 @@ class Stripper:
 		if not noLink:
 			if AMBuild.target['platform'] == 'linux':
 				compiler['POSTLINKFLAGS'][0:0] = ['-lm']
-				if sdk in ['ep2v', 'css', 'l4d2']:
+				if sdk in ['tf2', 'css', 'l4d2', 'hl2dm', 'dods', 'nd']:
 					compiler['POSTLINKFLAGS'][0:0] = ['libtier0_srv.so']
 					compiler['POSTLINKFLAGS'][0:0] = ['libvstdlib_srv.so']
 				elif sdk in ['l4d', 'csgo']:
