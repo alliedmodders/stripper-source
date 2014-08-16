@@ -9,6 +9,7 @@
  * ===================================
  */
 #include <new>
+#include <stdio.h>
 #include "support.h"
 #include "parser.h"
 #if defined WIN32
