@@ -10,6 +10,7 @@
  */
 
 #include <stdio.h>
+#include <stddef.h>
 #ifdef WIN32
 #include <windows.h>
 #define snprintf _snprintf
