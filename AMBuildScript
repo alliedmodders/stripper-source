@@ -100,6 +100,7 @@ class Stripper:
 					self.vendor = 'gcc'
 				elif isinstance(cxx, Cpp.Clang):
 					self.vendor = 'clang'
+				self.compiler.AddToListVar('CDEFINES', 'POSIX')
 				self.compiler.AddToListVar('CDEFINES', 'stricmp=strcasecmp')
 				self.compiler.AddToListVar('CDEFINES', '_stricmp=strcasecmp')
 				self.compiler.AddToListVar('CDEFINES', '_snprintf=snprintf')
