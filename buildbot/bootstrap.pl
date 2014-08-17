@@ -19,6 +19,11 @@ our ($root) = getcwd();
 
 my $reconf = 0;
 
+if ($^O eq "darwin") {
+	$ENV{'HL2SDKND'} = '/Volumes/hgshare/hl2sdk-nucleardawn';
+} elsif ($^O eq "windows") {
+	$ENV{'HL2SDK'} = 'H:\\hl2sdk-episode1';
+}
 
 #Create output folder if it doesn't exist.
 if (!(-d 'OUTPUT')) {
