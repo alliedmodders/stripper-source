@@ -276,6 +276,7 @@ class Stripper:
 				libs = ['tier1_i486.a', 'mathlib_i486.a', 'libvstdlib.so', 'libtier0.so']
 				if sdk == 'csgo':
 					libs.append('interfaces_i486.a')
+					builder['POSTLINKFLAGS'].append('-lstdc++')
 				for lib in libs:
 					link = os.path.join(workFolder, lib)
 					target = os.path.join(staticLibs, lib)
