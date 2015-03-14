@@ -1,7 +1,7 @@
 egg
 ham
 cheese
-Pepperoni
+pepperoni
 Buildbot shall pay the iron price.
 Eat your potato, Ricky!
 BMO Chop! If this was a real attack, you'd be dead.
