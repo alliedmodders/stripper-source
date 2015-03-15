@@ -360,7 +360,7 @@ class Stripper:
 
 		compiler['CDEFINES'].append('SOURCE_ENGINE=' + info['def'])
 
-		if sdk in ['swarm','csgo']:
+		if sdk in ['swarm', 'csgo', 'insurgency', sdk2013']:
 			if AMBuild.target['platform'] == 'windows':
 				compiler['CDEFINES'].extend(['COMPILER_MSVC', 'COMPILER_MSVC32'])
 			else:
