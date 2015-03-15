@@ -31,7 +31,7 @@ class Stripper:
 		                         'name': 'DODS',           'platform': ['windows', 'linux', 'darwin']}
 								 
 		self.sdkInfo['sdk2013'] =   {'sdk': 'HL2SDK2013',       'ext': '16.sdk2013',   'def': '9',
-		                         'name': 'SDK2013',            'platform': ['windows', 'linux']}
+		                         'name': 'SDK2013',            'platform': ['windows', 'linux', 'darwin']}
 								 
 		self.sdkInfo['tf2'] =   {'sdk': 'HL2SDKTF2',       'ext': '16.tf2',   'def': '10',
 		                         'name': 'TF2',            'platform': ['windows', 'linux', 'darwin']}
@@ -267,7 +267,7 @@ class Stripper:
 			if sdk == 'ep1':
 				staticLibs = os.path.join(sdkPath, 'linux_sdk')
 			elif sdk == 'sdk2103':
-				staticLibs = os.path.join(sdkPath, 'lib', 'linux32')
+				staticLibs = os.path.join(sdkPath, 'lib', 'public', 'linux32')
 			else:
 				staticLibs = os.path.join(sdkPath, 'lib', 'linux')
 			workFolder = os.path.join(AMBuild.outputFolder, job.workFolder)
@@ -303,7 +303,7 @@ class Stripper:
 						job.AddCommand(SymlinkCommand(link, target))
 		elif AMBuild.target['platform'] == 'darwin':
 			if sdk == 'sdk2103':
-				staticLibs = os.path.join(sdkPath, 'lib', 'osx32')
+				staticLibs = os.path.join(sdkPath, 'lib', 'public', 'osx32')
 			else:
 				staticLibs = os.path.join(sdkPath, 'lib', 'mac')
 				
@@ -381,9 +381,9 @@ class Stripper:
 				staticLibs = os.path.join(sdkPath, 'linux_sdk')
 		elif sdk =='sdk2013':
 			if AMBuild.target['platform'] == 'linux':
-				staticLibs = os.path.join(sdkPath, 'lib', 'linux32')
+				staticLibs = os.path.join(sdkPath, 'lib', 'public', 'linux32')
 			elif AMBuild.target['platform'] == 'darwin':
-				staticLibs = os.path.join(sdkPath, 'lib', 'osx32')
+				staticLibs = os.path.join(sdkPath, 'lib', 'public', 'osx32')
 		else:
 			if AMBuild.target['platform'] == 'linux':
 				staticLibs = os.path.join(sdkPath, 'lib', 'linux')
