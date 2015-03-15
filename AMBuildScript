@@ -31,7 +31,7 @@ class Stripper:
 		                         'name': 'DODS',           'platform': ['windows', 'linux', 'darwin']}
 								 
 		self.sdkInfo['sdk2013'] =   {'sdk': 'HL2SDK2013',       'ext': '16.sdk2013',   'def': '9',
-		                         'name': 'SDK2013',            'platform': ['windows', 'linux', 'darwin']}
+		                         'name': 'SDK2013',            'platform': ['windows', 'linux']}
 								 
 		self.sdkInfo['tf2'] =   {'sdk': 'HL2SDKTF2',       'ext': '16.tf2',   'def': '10',
 		                         'name': 'TF2',            'platform': ['windows', 'linux', 'darwin']}
@@ -271,8 +271,17 @@ class Stripper:
 			else:
 				staticLibs = os.path.join(sdkPath, 'lib', 'linux')
 			workFolder = os.path.join(AMBuild.outputFolder, job.workFolder)
-			if sdk in ['tf2', 'css', 'l4d2', 'hl2dm', 'dods', 'nd', 'sdk2013']:
+			if sdk in ['tf2', 'css', 'l4d2', 'hl2dm', 'dods', 'nd']:
 				libs = ['tier1_i486.a', 'mathlib_i486.a', 'libvstdlib_srv.so', 'libtier0_srv.so']
+				for lib in libs:
+					link = os.path.join(workFolder, lib)
+					target = os.path.join(staticLibs, lib)
+					try:
+						os.lstat(link)
+					except:
+						job.AddCommand(SymlinkCommand(link, target))
+			elif sdk == 'sdk2013':
+				libs = ['tier1.a', 'mathlib.a', 'libvstdlib_srv.so', 'libtier0_srv.so']
 				for lib in libs:
 					link = os.path.join(workFolder, lib)
 					target = os.path.join(staticLibs, lib)
