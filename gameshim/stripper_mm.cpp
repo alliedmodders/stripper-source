@@ -63,13 +63,12 @@ GetICVar()
 #define dlopen(x, y)    LoadLibrary(x)
 #define dlclose(x)      FreeLibrary(x)
 #define dlsym(x, y)     GetProcAddress(x, y)
+typedef HMODULE			LibraryHandle;
 #else
-#if SOURCE_ENGINE==SE_CSGO || SOURCE_ENGINE==SE_INSURGENCY
-typedef void*           HMODULE;
-#endif
+typedef void *			LibraryHandle;
 #endif
 
-static HMODULE stripper_lib;
+static LibraryHandle stripper_lib;
 
 static void
 SetCommandClient(int client);

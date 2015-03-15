@@ -109,10 +109,13 @@ class Stripper:
 				elif isinstance(cxx, Cpp.Clang):
 					self.vendor = 'clang'
 				self.compiler.AddToListVar('CDEFINES', 'POSIX')
-				self.compiler.AddToListVar('CDEFINES', 'stricmp=strcasecmp')
-				self.compiler.AddToListVar('CDEFINES', '_stricmp=strcasecmp')
-				self.compiler.AddToListVar('CDEFINES', '_snprintf=snprintf')
-				self.compiler.AddToListVar('CDEFINES', '_vsnprintf=vsnprintf')
+				
+				if sdk != 'sdk2013':
+					self.compiler.AddToListVar('CDEFINES', 'stricmp=strcasecmp')
+					self.compiler.AddToListVar('CDEFINES', '_stricmp=strcasecmp')
+					self.compiler.AddToListVar('CDEFINES', '_snprintf=snprintf')
+					self.compiler.AddToListVar('CDEFINES', '_vsnprintf=vsnprintf')
+					
 				self.compiler.AddToListVar('CFLAGS', '-pipe')
 				self.compiler.AddToListVar('CFLAGS', '-fno-strict-aliasing')
 				if (self.vendor == 'gcc' and cxx.majorVersion >= 4) or self.vendor == 'clang':
