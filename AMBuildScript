@@ -266,7 +266,7 @@ class Stripper:
 		if AMBuild.target['platform'] == 'linux':
 			if sdk == 'ep1':
 				staticLibs = os.path.join(sdkPath, 'linux_sdk')
-			elif sdk == 'sdk2103':
+			elif sdk == 'sdk2013':
 				staticLibs = os.path.join(sdkPath, 'lib', 'public', 'linux32')
 			else:
 				staticLibs = os.path.join(sdkPath, 'lib', 'linux')
@@ -302,7 +302,7 @@ class Stripper:
 					except:
 						job.AddCommand(SymlinkCommand(link, target))
 		elif AMBuild.target['platform'] == 'darwin':
-			if sdk == 'sdk2103':
+			if sdk == 'sdk2013':
 				staticLibs = os.path.join(sdkPath, 'lib', 'public', 'osx32')
 			else:
 				staticLibs = os.path.join(sdkPath, 'lib', 'mac')
@@ -354,6 +354,11 @@ class Stripper:
 			compiler['CDEFINES'].append('_stricmp=strcasecmp')
 			compiler['CDEFINES'].append('_snprintf=snprintf')
 			compiler['CDEFINES'].append('_vsnprintf=vsnprintf')
+
+		if sdk in ['css', 'hl2dm', 'dods', 'sdk2013', 'tf2', 'l4d', 'nucleardawn', 'l4d2', 'dota']:
+			if AMBuild.target['platform'] in ['linux', 'darwin']:
+				compiler['CDEFINES'].append('NO_HOOK_MALLOC')
+				compiler['CDEFINES'].append('NO_MALLOC_OVERRIDE')
 				
 		paths = [['public'], ['public', 'engine'], ['public', 'mathlib'], ['public', 'vstdlib'],
 						 ['public', 'tier0'], ['public', 'tier1']]
