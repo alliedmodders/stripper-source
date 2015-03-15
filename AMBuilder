@@ -15,6 +15,12 @@ elif AMBuild.target['platform'] == 'windows':
 elif AMBuild.target['platform'] == 'darwin':
 	path = os.path.join(AMBuild.sourceFolder, 'pcre', 'libpcre-darwin.a')
 
+if AMBuild.target['platform'] in ['linux', 'darwin'] and 'stricmp=strcasecmp' not in compiler['CDEFINES']:
+	compiler['CDEFINES'].extend('stricmp=strcasecmp')
+	compiler['CDEFINES'].extend('_stricmp=strcasecmp')
+	compiler['CDEFINES'].extend('_snprintf=snprintf')
+	compiler['CDEFINES'].extend('_vsnprintf=vsnprintf')
+	
 name = 'stripper.core'
 loader = AMBuild.AddJob(name)
 binary = Cpp.LibraryBuilder(name, AMBuild, loader, compiler)

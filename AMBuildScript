@@ -109,10 +109,6 @@ class Stripper:
 				elif isinstance(cxx, Cpp.Clang):
 					self.vendor = 'clang'
 				self.compiler.AddToListVar('CDEFINES', 'POSIX')
-				self.compiler.AddToListVar('CDEFINES', 'stricmp=strcasecmp')
-				self.compiler.AddToListVar('CDEFINES', '_stricmp=strcasecmp')
-				self.compiler.AddToListVar('CDEFINES', '_snprintf=snprintf')
-				self.compiler.AddToListVar('CDEFINES', '_vsnprintf=vsnprintf')
 				self.compiler.AddToListVar('CFLAGS', '-pipe')
 				self.compiler.AddToListVar('CFLAGS', '-fno-strict-aliasing')
 				if (self.vendor == 'gcc' and cxx.majorVersion >= 4) or self.vendor == 'clang':
@@ -353,6 +349,12 @@ class Stripper:
 		info = self.sdkInfo
 		compiler['CDEFINES'].extend(['SE_' + info[i]['name'] + '=' + info[i]['def'] for i in info])
 
+		if sdk != 'sdk2013' and AMBuild.target['platform'] in ['linux', 'darwin']
+			compiler['CDEFINES'].extend('stricmp=strcasecmp')
+			compiler['CDEFINES'].extend('_stricmp=strcasecmp')
+			compiler['CDEFINES'].extend('_snprintf=snprintf')
+			compiler['CDEFINES'].extend('_vsnprintf=vsnprintf')
+				
 		paths = [['public'], ['public', 'engine'], ['public', 'mathlib'], ['public', 'vstdlib'],
 						 ['public', 'tier0'], ['public', 'tier1']]
 		if sdk == 'ep1' or sdk == 'darkm':
