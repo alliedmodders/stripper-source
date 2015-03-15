@@ -192,12 +192,14 @@ class Stripper:
 			#Platform-specifics
 			if AMBuild.target['platform'] == 'linux':
 				self.compiler.AddToListVar('CDEFINES', '_LINUX')
+				self.compiler.AddToListVar('CDEFINES', 'GNUC')
 				if self.vendor == 'gcc':
 					self.compiler.AddToListVar('POSTLINKFLAGS', '-static-libgcc')
 				if self.vendor == 'clang':
 					self.compiler.AddToListVar('POSTLINKFLAGS', '-lgcc_eh')
 			elif AMBuild.target['platform'] == 'darwin':
 				self.compiler.AddToListVar('CDEFINES', 'OSX')
+				self.compiler.AddToListVar('CDEFINES', 'GNUC')
 				self.compiler.AddToListVar('CDEFINES', '_OSX')
 				self.compiler.AddToListVar('POSTLINKFLAGS', '-mmacosx-version-min=10.5')
 				self.compiler.AddToListVar('POSTLINKFLAGS', ['-arch', 'i386'])
@@ -268,10 +270,12 @@ class Stripper:
 		if AMBuild.target['platform'] == 'linux':
 			if sdk == 'ep1':
 				staticLibs = os.path.join(sdkPath, 'linux_sdk')
+			elif sdk == 'sdk2103':
+				staticLibs = os.path.join(sdkPath, 'lib', 'linux32')
 			else:
 				staticLibs = os.path.join(sdkPath, 'lib', 'linux')
 			workFolder = os.path.join(AMBuild.outputFolder, job.workFolder)
-			if sdk in ['tf2', 'css', 'l4d2', 'hl2dm', 'dods', 'nd']:
+			if sdk in ['tf2', 'css', 'l4d2', 'hl2dm', 'dods', 'nd', 'sdk2013']:
 				libs = ['tier1_i486.a', 'mathlib_i486.a', 'libvstdlib_srv.so', 'libtier0_srv.so']
 				for lib in libs:
 					link = os.path.join(workFolder, lib)
@@ -280,7 +284,7 @@ class Stripper:
 						os.lstat(link)
 					except:
 						job.AddCommand(SymlinkCommand(link, target))
-			elif sdk in ['l4d', 'csgo']:
+			elif sdk in ['l4d', 'csgo', 'insurgency']:
 				libs = ['tier1_i486.a', 'mathlib_i486.a', 'libvstdlib.so', 'libtier0.so']
 				if sdk == 'csgo':
 					libs.append('interfaces_i486.a')
@@ -302,7 +306,11 @@ class Stripper:
 					except:
 						job.AddCommand(SymlinkCommand(link, target))
 		elif AMBuild.target['platform'] == 'darwin':
-			staticLibs = os.path.join(sdkPath, 'lib', 'mac')
+			if sdk == 'sdk2103':
+				staticLibs = os.path.join(sdkPath, 'lib', 'osx32')
+			else:
+				staticLibs = os.path.join(sdkPath, 'lib', 'mac')
+				
 			workFolder = os.path.join(AMBuild.outputFolder, job.workFolder)
 			libs = ['tier1_i486.a', 'mathlib_i486.a', 'libvstdlib.dylib', 'libtier0.dylib']
 			if sdk in ['insurgency', 'csgo']:
