@@ -113,7 +113,6 @@ class Stripper:
 				self.compiler.AddToListVar('CDEFINES', '_stricmp=strcasecmp')
 				self.compiler.AddToListVar('CDEFINES', '_snprintf=snprintf')
 				self.compiler.AddToListVar('CDEFINES', '_vsnprintf=vsnprintf')
-				
 				self.compiler.AddToListVar('CFLAGS', '-pipe')
 				self.compiler.AddToListVar('CFLAGS', '-fno-strict-aliasing')
 				if (self.vendor == 'gcc' and cxx.majorVersion >= 4) or self.vendor == 'clang':
@@ -354,11 +353,6 @@ class Stripper:
 		info = self.sdkInfo
 		compiler['CDEFINES'].extend(['SE_' + info[i]['name'] + '=' + info[i]['def'] for i in info])
 
-		if sdk in ['css', 'hl2dm', 'dods', 'sdk2013', 'tf2', 'l4d', 'nucleardawn', 'l4d2', 'dota']:
-			if AMBuild.target['platform'] in ['linux', 'darwin']:
-				compiler['CDEFINES'].extend('NO_HOOK_MALLOC')
-				compiler['CDEFINES'].extend('NO_MALLOC_OVERRIDE')
-				
 		paths = [['public'], ['public', 'engine'], ['public', 'mathlib'], ['public', 'vstdlib'],
 						 ['public', 'tier0'], ['public', 'tier1']]
 		if sdk == 'ep1' or sdk == 'darkm':
@@ -431,4 +425,3 @@ FileList = [
 
 for parts in FileList:
 	AMBuild.Include(os.path.join(*parts), globals)
-
