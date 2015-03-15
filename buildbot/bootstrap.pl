@@ -21,6 +21,8 @@ my $reconf = 0;
 
 if ($^O eq "darwin") {
 	$ENV{'HL2SDKND'} = '/Volumes/hgshare/hl2sdk-nucleardawn';
+	$ENV{'HL2SDK2013'} = '/Volumes/hgshare/hl2sdk-sdk2013';
+	$ENV{'HL2SDKINSURGENCY'} = '/Volumes/hgshare/hl2sdk-insurgency';
 }
 
 #Create output folder if it doesn't exist.

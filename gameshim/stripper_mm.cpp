@@ -64,7 +64,7 @@ GetICVar()
 #define dlclose(x)      FreeLibrary(x)
 #define dlsym(x, y)     GetProcAddress(x, y)
 #else
-#if SOURCE_ENGINE==SE_CSGO
+#if SOURCE_ENGINE==SE_CSGO || SOURCE_ENGINE==SE_INSURGENCY
 typedef void*           HMODULE;
 #endif
 #endif
