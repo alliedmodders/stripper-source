@@ -37,6 +37,8 @@ inline bool IsPathSepChar(char c) { return (c == '/'); }
 #define MMS_1_6_BGT_FILE		"stripper.16.bgt" PLATFORM_EXT
 #define MMS_1_6_CSGO_FILE		"stripper.16.csgo" PLATFORM_EXT
 #define MMS_1_6_CSS_FILE		"stripper.16.css" PLATFORM_EXT
+#define MMS_1_6_INS_FILE		"stripper.16.ins" PLATFORM_EXT
+#define MMS_1_6_SDK2013_FILE	"stripper.16.sdk2013" PLATFORM_EXT
 
 HINSTANCE stripper_library = NULL;
 
@@ -159,6 +161,12 @@ EXPORT METAMOD_PLUGIN *CreateInterface_MMS(const MetamodVersionInfo *mvi, const 
 			break;
 		case SOURCE_ENGINE_CSGO:
 			file = MMS_1_6_CSGO_FILE;
+			break;
+		case SOURCE_ENGINE_INSURGENCY:
+			file = MMS_1_6_INS_FILE;
+			break;
+		case SOURCE_ENGINE_SDK2013:
+			file = MMS_1_6_SDK2013_FILE;
 			break;
 	}
 
