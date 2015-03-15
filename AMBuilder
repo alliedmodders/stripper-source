@@ -16,10 +16,10 @@ elif AMBuild.target['platform'] == 'darwin':
 	path = os.path.join(AMBuild.sourceFolder, 'pcre', 'libpcre-darwin.a')
 
 if AMBuild.target['platform'] in ['linux', 'darwin'] and 'stricmp=strcasecmp' not in compiler['CDEFINES']:
-	compiler['CDEFINES'].extend('stricmp=strcasecmp')
-	compiler['CDEFINES'].extend('_stricmp=strcasecmp')
-	compiler['CDEFINES'].extend('_snprintf=snprintf')
-	compiler['CDEFINES'].extend('_vsnprintf=vsnprintf')
+	compiler['CDEFINES'].append('stricmp=strcasecmp')
+	compiler['CDEFINES'].append('_stricmp=strcasecmp')
+	compiler['CDEFINES'].append('_snprintf=snprintf')
+	compiler['CDEFINES'].append('_vsnprintf=vsnprintf')
 	
 name = 'stripper.core'
 loader = AMBuild.AddJob(name)

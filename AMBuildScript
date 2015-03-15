@@ -350,10 +350,10 @@ class Stripper:
 		compiler['CDEFINES'].extend(['SE_' + info[i]['name'] + '=' + info[i]['def'] for i in info])
 
 		if sdk != 'sdk2013' and AMBuild.target['platform'] in ['linux', 'darwin']:
-			compiler['CDEFINES'].extend('stricmp=strcasecmp')
-			compiler['CDEFINES'].extend('_stricmp=strcasecmp')
-			compiler['CDEFINES'].extend('_snprintf=snprintf')
-			compiler['CDEFINES'].extend('_vsnprintf=vsnprintf')
+			compiler['CDEFINES'].append('stricmp=strcasecmp')
+			compiler['CDEFINES'].append('_stricmp=strcasecmp')
+			compiler['CDEFINES'].append('_snprintf=snprintf')
+			compiler['CDEFINES'].append('_vsnprintf=vsnprintf')
 				
 		paths = [['public'], ['public', 'engine'], ['public', 'mathlib'], ['public', 'vstdlib'],
 						 ['public', 'tier0'], ['public', 'tier1']]
