@@ -48,7 +48,7 @@ class Stripper:
 		self.sdkInfo['swarm'] = {'sdk': 'HL2SDK-SWARM',    'ext': '16.swarm', 'def': '15',
 		                         'name': 'ALIENSWARM',     'platform': ['windows']}
 
-		self.sdkInfo['insurgency'] =  {'sdk': 'HL2SDKINSURGENCY',     'ext': '16.insurgency',   'def': '18',
+		self.sdkInfo['insurgency'] =  {'sdk': 'HL2SDKINSURGENCY',     'ext': '16.ins',   'def': '18',
 		                         'name': 'INSURGENCY',           'platform': ['windows', 'linux', 'darwin']}
 								 
 		self.sdkInfo['csgo'] =  {'sdk': 'HL2SDKCSGO',     'ext': '16.csgo',   'def': '19',
