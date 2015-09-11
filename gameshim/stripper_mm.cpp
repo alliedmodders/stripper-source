@@ -142,7 +142,24 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
 
 #if defined METAMOD_PLAPI_VERSION
     GET_V_IFACE_ANY(GetServerFactory, server, IServerGameDLL, INTERFACEVERSION_SERVERGAMEDLL);
-    GET_V_IFACE_CURRENT(GetEngineFactory, engine, IVEngineServer, INTERFACEVERSION_VENGINESERVER);
+#if SOURCE_ENGINE == SE_TF2 || SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_SDK2013
+	// Shim to avoid hooking shims
+	engine = (IVEngineServer *)ismm->GetEngineFactory()("VEngineServer023", nullptr);
+	if (!engine)
+	{
+		engine = (IVEngineServer *)ismm->GetEngineFactory()("VEngineServer022", nullptr);
+		if (!engine)
+		{
+			if (error && maxlen)
+			{
+				ismm->Format(error, maxlen, "Could not find interface: VEngineServer023 or VEngineServer022");
+			}
+			return false;
+		}
+	}
+#else
+	GET_V_IFACE_CURRENT(GetEngineFactory, engine, IVEngineServer, INTERFACEVERSION_VENGINESERVER);
+#endif
     GET_V_IFACE_ANY(GetServerFactory, clients, IServerGameClients, INTERFACEVERSION_SERVERGAMECLIENTS);
 #else
     GET_V_IFACE_ANY(serverFactory, server, IServerGameDLL, INTERFACEVERSION_SERVERGAMEDLL);
