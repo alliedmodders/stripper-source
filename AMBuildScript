@@ -40,7 +40,7 @@ class Stripper:
 		                         'name': 'LEFT4DEAD',      'platform': ['windows', 'linux', 'darwin']}
 								 
 		self.sdkInfo['nd'] =    {'sdk': 'HL2SDKND',        'ext': '16.nd',    'def': '12',
-		                         'name': 'NUCLEARDAWN',    'platform': ['windows', 'linux', 'darwin']}
+		                         'name': 'NUCLEARDAWN',    'platform': ['linux', 'darwin']}
 								 
 		self.sdkInfo['l4d2'] =  {'sdk': 'HL2SDKL4D2',      'ext': '16.l4d2',  'def': '14',
 		                         'name': 'LEFT4DEAD2',     'platform': ['windows', 'linux', 'darwin']}
