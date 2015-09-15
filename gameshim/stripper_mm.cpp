@@ -150,11 +150,15 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
 		engine = (IVEngineServer *)ismm->GetEngineFactory()("VEngineServer022", nullptr);
 		if (!engine)
 		{
-			if (error && maxlen)
+			engine = (IVEngineServer *)ismm->GetEngineFactory()("VEngineServer021", nullptr);
+			if (!engine)
 			{
-				ismm->Format(error, maxlen, "Could not find interface: VEngineServer023 or VEngineServer022");
+				if (error && maxlen)
+				{
+					ismm->Format(error, maxlen, "Could not find interface: VEngineServer023 or VEngineServer022 or VEngineServer021");
+				}
+				return false;
 			}
-			return false;
 		}
 	}
 #else
