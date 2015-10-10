@@ -159,9 +159,13 @@ void Stripper::SetEntityList(const char *ents)
     char *_tmp = NULL;
     size_t _tmpsize = 0;
     size_t pos = 0;
+    char in_string = 0;
     for (size_t i=0; i<len; i++)
     {
-        if (ents[i] == '\n' || ents[i] == '\r')
+        if (ents[i] == '"')
+            in_string ^= 1;
+
+        if ((ents[i] == '\n' || ents[i] == '\r') && !in_string)
         {
             /* check if we should expand the buffer */
             if (i-pos+1 >= _tmpsize)
