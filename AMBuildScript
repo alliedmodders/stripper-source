@@ -272,7 +272,7 @@ class Stripper:
 			else:
 				staticLibs = os.path.join(sdkPath, 'lib', 'linux')
 			workFolder = os.path.join(AMBuild.outputFolder, job.workFolder)
-			if sdk in ['tf2', 'css', 'l4d2', 'hl2dm', 'dods', 'nd']:
+			if sdk in ['tf2', 'css', 'l4d2', 'hl2dm', 'dods', 'nd', 'insurgency']:
 				libs = ['tier1_i486.a', 'mathlib_i486.a', 'libvstdlib_srv.so', 'libtier0_srv.so']
 				for lib in libs:
 					link = os.path.join(workFolder, lib)
@@ -290,7 +290,7 @@ class Stripper:
 						os.lstat(link)
 					except:
 						job.AddCommand(SymlinkCommand(link, target))
-			elif sdk in ['l4d', 'csgo', 'insurgency']:
+			elif sdk in ['l4d', 'csgo']:
 				libs = ['tier1_i486.a', 'mathlib_i486.a', 'libvstdlib.so', 'libtier0.so']
 				if sdk == 'csgo':
 					libs.append('interfaces_i486.a')
