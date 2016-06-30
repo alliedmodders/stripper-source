@@ -363,7 +363,7 @@ class Stripper:
 		info = self.sdkInfo
 		compiler['CDEFINES'].extend(['SE_' + info[i]['name'] + '=' + info[i]['def'] for i in info])
 
-		if sdk in ['sdk2013', 'bms'] and AMBuild.target['platform'] in ['linux', 'darwin']:
+		if sdk not in ['sdk2013', 'bms'] and AMBuild.target['platform'] in ['linux', 'darwin']:
 			compiler['CDEFINES'].append('stricmp=strcasecmp')
 			compiler['CDEFINES'].append('_stricmp=strcasecmp')
 			compiler['CDEFINES'].append('_snprintf=snprintf')
