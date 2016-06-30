@@ -23,8 +23,14 @@ if ($^O eq "darwin") {
 	$ENV{'HL2SDKND'} = '/Volumes/hgshare/hl2sdk-nucleardawn';
 	$ENV{'HL2SDK2013'} = '/Volumes/hgshare/hl2sdk-sdk2013';
 	$ENV{'HL2SDKINSURGENCY'} = '/Volumes/hgshare/hl2sdk-insurgency';
+	$ENV{'HL2SDKBMS'} = '/Volumes/hgshare/hl2sdk-bms';
 }
-
+elsif ($^O eq "linux") {
+	$ENV{'HL2SDKBMS'} = '/hgshare/hl2sdk-bms';
+}
+else {
+	$ENV{'HL2SDKBMS'} = 'H:\hl2sdk-bms';
+}
 #Create output folder if it doesn't exist.
 if (!(-d 'OUTPUT')) {
 	$reconf = 1;
