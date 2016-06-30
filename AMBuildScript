@@ -197,6 +197,7 @@ class Stripper:
 				if self.vendor == 'gcc':
 					self.compiler.AddToListVar('POSTLINKFLAGS', '-static-libgcc')
 				if self.vendor == 'clang':
+					self.compiler.AddToListVar('CXXFLAGS', '-Wno-implicit-exception-spec-mismatch')
 					self.compiler.AddToListVar('CXXFLAGS', '-std=c++11')
 					self.compiler.AddToListVar('POSTLINKFLAGS', '-lgcc_eh')
 			elif AMBuild.target['platform'] == 'darwin':
