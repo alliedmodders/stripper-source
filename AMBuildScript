@@ -54,6 +54,9 @@ class Stripper:
 		self.sdkInfo['csgo'] =  {'sdk': 'HL2SDKCSGO',     'ext': '16.csgo',   'def': '19',
 		                         'name': 'CSGO',           'platform': ['windows', 'linux', 'darwin']}
 								 
+		self.sdkInfo['bms'] =  {'sdk': 'HL2SDKBMS',     'ext': '16.bms',   'def': '22',
+		                         'name': 'BMS',           'platform': ['windows', 'linux']}
+								 
 		if AMBuild.mode == 'config':
 			#Detect compilers
 			self.compiler.DetectAll(AMBuild)
@@ -70,6 +73,7 @@ class Stripper:
 						'HL2SDKCSS':    'hl2sdk-css',
 						'HL2SDKINSURGENCY':	'hl2sdk-insurgency',
 						'HL2SDK2013':	'hl2sdk-sdk2013',
+						'HL2SDKBMS':	'hl2sdk-bms',
 			}
 
 			if AMBuild.target['platform'] != 'darwin':
@@ -267,7 +271,7 @@ class Stripper:
 		if AMBuild.target['platform'] == 'linux':
 			if sdk == 'ep1':
 				staticLibs = os.path.join(sdkPath, 'linux_sdk')
-			elif sdk == 'sdk2013':
+			elif sdk in ['sdk2013', 'bms']:
 				staticLibs = os.path.join(sdkPath, 'lib', 'public', 'linux32')
 			else:
 				staticLibs = os.path.join(sdkPath, 'lib', 'linux')
@@ -281,7 +285,7 @@ class Stripper:
 						os.lstat(link)
 					except:
 						job.AddCommand(SymlinkCommand(link, target))
-			elif sdk == 'sdk2013':
+			elif sdk in ['sdk2013', 'bms']:
 				libs = ['tier1.a', 'mathlib.a', 'libvstdlib_srv.so', 'libtier0_srv.so']
 				for lib in libs:
 					link = os.path.join(workFolder, lib)
@@ -312,7 +316,7 @@ class Stripper:
 					except:
 						job.AddCommand(SymlinkCommand(link, target))
 		elif AMBuild.target['platform'] == 'darwin':
-			if sdk == 'sdk2013':
+			if sdk in ['sdk2013', 'bms']:
 				staticLibs = os.path.join(sdkPath, 'lib', 'public', 'osx32')
 			else:
 				staticLibs = os.path.join(sdkPath, 'lib', 'mac')
@@ -339,7 +343,7 @@ class Stripper:
 
 	def PostSetupHL2Job(self, job, builder, sdk):
 		if AMBuild.target['platform'] in ['linux', 'darwin']:
-			if sdk == 'sdk2013':
+			if sdk in ['sdk2013', 'bms']:
 				builder.AddObjectFiles(['tier1.a', 'mathlib.a'])
 			else:
 				builder.AddObjectFiles(['tier1_i486.a', 'mathlib_i486.a'])
@@ -359,13 +363,13 @@ class Stripper:
 		info = self.sdkInfo
 		compiler['CDEFINES'].extend(['SE_' + info[i]['name'] + '=' + info[i]['def'] for i in info])
 
-		if sdk != 'sdk2013' and AMBuild.target['platform'] in ['linux', 'darwin']:
+		if sdk in ['sdk2013', 'bms'] and AMBuild.target['platform'] in ['linux', 'darwin']:
 			compiler['CDEFINES'].append('stricmp=strcasecmp')
 			compiler['CDEFINES'].append('_stricmp=strcasecmp')
 			compiler['CDEFINES'].append('_snprintf=snprintf')
 			compiler['CDEFINES'].append('_vsnprintf=vsnprintf')
 
-		if sdk in ['css', 'hl2dm', 'dods', 'sdk2013', 'tf2', 'l4d', 'nucleardawn', 'l4d2', 'dota']:
+		if sdk in ['css', 'hl2dm', 'dods', 'sdk2013', 'bms', 'tf2', 'l4d', 'nucleardawn', 'l4d2', 'dota']:
 			if AMBuild.target['platform'] in ['linux', 'darwin']:
 				compiler['CDEFINES'].append('NO_HOOK_MALLOC')
 				compiler['CDEFINES'].append('NO_MALLOC_OVERRIDE')
@@ -385,7 +389,7 @@ class Stripper:
 
 		compiler['CDEFINES'].append('SOURCE_ENGINE=' + info['def'])
 
-		if sdk in ['swarm', 'csgo', 'insurgency', 'sdk2013']:
+		if sdk in ['swarm', 'csgo', 'insurgency', 'sdk2013', 'bms']:
 			if AMBuild.target['platform'] == 'windows':
 				compiler['CDEFINES'].extend(['COMPILER_MSVC', 'COMPILER_MSVC32'])
 			else:
@@ -394,7 +398,7 @@ class Stripper:
 		if sdk == 'ep1':
 			if AMBuild.target['platform'] == 'linux':
 				staticLibs = os.path.join(sdkPath, 'linux_sdk')
-		elif sdk =='sdk2013':
+		elif sdk in ['sdk2013', 'bms']:
 			if AMBuild.target['platform'] == 'linux':
 				staticLibs = os.path.join(sdkPath, 'lib', 'public', 'linux32')
 			elif AMBuild.target['platform'] == 'darwin':
@@ -411,7 +415,7 @@ class Stripper:
 		if not noLink:
 			if AMBuild.target['platform'] == 'linux':
 				compiler['POSTLINKFLAGS'][0:0] = ['-lm']
-				if sdk in ['tf2', 'css', 'l4d2', 'hl2dm', 'dods', 'nd', 'sdk2013', 'insurgency']:
+				if sdk in ['tf2', 'css', 'l4d2', 'hl2dm', 'dods', 'nd', 'sdk2013', 'bms' 'insurgency']:
 					compiler['POSTLINKFLAGS'][0:0] = ['libtier0_srv.so']
 					compiler['POSTLINKFLAGS'][0:0] = ['libvstdlib_srv.so']
 				elif sdk in ['l4d', 'csgo']:
