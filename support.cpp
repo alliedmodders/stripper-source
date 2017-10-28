@@ -117,13 +117,26 @@ command_dump()
 
 	int num = 0;
 	char file[255];
+
+	char *szMapName = (char *)stripper_game.get_map_name();
+
+	//Clean the mapname
+	for (int i = strlen(szMapName); i >= 0; i--)
+	{
+		if (szMapName[i] == '\\' || szMapName[i] == '/')
+		{
+			szMapName += (i + 1);
+			break;
+		}
+	}
+
 	do
 	{
 		stripper_game.path_format(file,
                 sizeof(file),
                 "%s/%s.%04d.cfg",
                 path,
-                stripper_game.get_map_name(),
+				szMapName,
                 num);
 		FILE *fp = fopen(file, "rt");
 		if (!fp)
@@ -132,10 +145,17 @@ command_dump()
 	} while (++num);
 
 	FILE *fp = fopen(file, "wt");
+
+	if (!fp)
+	{
+		stripper_game.log_message("Failed to create dump file %s", file);
+		return;
+	}
+
 	fprintf(fp, "%s", g_Stripper.ToString());
 	fclose(fp);
 
-	stripper_game.log_message("Logged map %s to file %s", stripper_game.get_map_name(), file);
+	stripper_game.log_message("Logged map %s to file %s", szMapName, file);
 }
 
 static void
