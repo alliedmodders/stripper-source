@@ -125,6 +125,10 @@ static stripper_game_t stripper_game =
 
 ConVar cvar_stripper_cfg_path("stripper_cfg_path", "addons/stripper", FCVAR_NONE, "Stripper Config Path");
 
+ConVar stripper_curfile("stripper_current_file", "", FCVAR_SPONLY | FCVAR_REPLICATED | FCVAR_NOTIFY, "Stripper for current map");
+
+ConVar stripper_nextfile("stripper_next_file", "", FCVAR_PROTECTED | FCVAR_SPONLY, "Stripper for next map");
+
 #if SOURCE_ENGINE >= SE_ORANGEBOX
 void stripper_cfg_path_changed(IConVar *var, const char *pOldValue, float flOldValue)
 #else
@@ -280,7 +284,16 @@ GetMapEntitiesString_handler()
 bool
 LevelInit_handler(char const *pMapName, char const *pMapEntities, char const *c, char const *d, bool e, bool f)
 {
-    g_mapname.assign(pMapName);
+    if (strlen(stripper_nextfile.GetString()) > 0) {
+        g_mapname.assign(stripper_nextfile.GetString());
+        log_message("Loading %s for map \"%s\"", g_mapname.c_str(), pMapName);
+    } else {
+        g_mapname.assign(pMapName);
+    }
+
+    stripper_nextfile.SetValue("");
+    stripper_curfile.SetValue(g_mapname.c_str());
+
     const char *ents = stripper_core.parse_map(g_mapname.c_str(), pMapEntities);
     RETURN_META_VALUE_NEWPARAMS(MRES_IGNORED, true, &IServerGameDLL::LevelInit, (pMapName, ents, c, d, e, f));
 }
