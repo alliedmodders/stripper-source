@@ -288,7 +288,7 @@ LevelInit_handler(char const *pMapName, char const *pMapEntities, char const *c,
         g_mapname.assign(stripper_nextfile.GetString());
         log_message("Loading %s for map \"%s\"", g_mapname.c_str(), pMapName);
     } else {
-        g_mapname.assign(pMapName);
+        g_mapname.assign(UTIL_ToLowerCase(pMapName));
     }
 
     stripper_nextfile.SetValue("");
@@ -296,6 +296,22 @@ LevelInit_handler(char const *pMapName, char const *pMapEntities, char const *c,
 
     const char *ents = stripper_core.parse_map(g_mapname.c_str(), pMapEntities);
     RETURN_META_VALUE_NEWPARAMS(MRES_IGNORED, true, &IServerGameDLL::LevelInit, (pMapName, ents, c, d, e, f));
+}
+
+char
+*UTIL_ToLowerCase(const char *str)
+{
+	size_t len = strlen(str);
+	char *buffer = new char[len + 1];
+	for (size_t i = 0; i < len; i++)
+	{
+		if (str[i] >= 'A' && str[i] <= 'Z')
+			buffer[i] = tolower(str[i]);
+		else
+			buffer[i] = str[i];
+	}
+	buffer[len] = '\0';
+	return buffer;
 }
 
 bool
