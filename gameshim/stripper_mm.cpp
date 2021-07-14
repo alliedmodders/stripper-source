@@ -129,6 +129,8 @@ ConVar stripper_curfile("stripper_current_file", "", FCVAR_SPONLY | FCVAR_REPLIC
 
 ConVar stripper_nextfile("stripper_next_file", "", FCVAR_PROTECTED | FCVAR_SPONLY, "Stripper for next map");
 
+ConVar stripper_lowercase("stripper_file_lowercase", "0", FCVAR_NONE, "Stripper Load Config in lowercase");
+
 #if SOURCE_ENGINE >= SE_ORANGEBOX
 void stripper_cfg_path_changed(IConVar *var, const char *pOldValue, float flOldValue)
 #else
@@ -288,7 +290,7 @@ LevelInit_handler(char const *pMapName, char const *pMapEntities, char const *c,
         g_mapname.assign(stripper_nextfile.GetString());
         log_message("Loading %s for map \"%s\"", g_mapname.c_str(), pMapName);
     } else {
-        g_mapname.assign(pMapName);
+        g_mapname.assign(stripper_lowercase.GetInt() != 0 ? UTIL_ToLowerCase(pMapName) : pMapName);
     }
 
     stripper_nextfile.SetValue("");
@@ -296,6 +298,22 @@ LevelInit_handler(char const *pMapName, char const *pMapEntities, char const *c,
 
     const char *ents = stripper_core.parse_map(g_mapname.c_str(), pMapEntities);
     RETURN_META_VALUE_NEWPARAMS(MRES_IGNORED, true, &IServerGameDLL::LevelInit, (pMapName, ents, c, d, e, f));
+}
+
+char*
+UTIL_ToLowerCase(const char *str)
+{
+	size_t len = strlen(str);
+	char *buffer = new char[len + 1];
+	for (size_t i = 0; i < len; i++)
+	{
+		if (str[i] >= 'A' && str[i] <= 'Z')
+			buffer[i] = tolower(str[i]);
+		else
+			buffer[i] = str[i];
+	}
+	buffer[len] = '\0';
+	return buffer;
 }
 
 bool

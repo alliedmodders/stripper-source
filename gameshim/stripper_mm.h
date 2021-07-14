@@ -59,5 +59,6 @@ PLUGIN_GLOBALVARS();
 
 const char *GetMapEntitiesString_handler();
 bool LevelInit_handler(char const *pMapName, char const *pMapEntities, char const *c, char const *d, bool e, bool f);
+char *UTIL_ToLowerCase(const char *str);
 
 #endif //_INCLUDE_SAMPLEPLUGIN_H

@@ -115,6 +115,7 @@ class Stripper:
 				self.compiler.AddToListVar('CDEFINES', 'POSIX')
 				self.compiler.AddToListVar('CFLAGS', '-pipe')
 				self.compiler.AddToListVar('CFLAGS', '-fno-strict-aliasing')
+				self.compiler.AddToListVar('CFLAGS', '-fno-omit-frame-pointer')
 				if (self.vendor == 'gcc' and cxx.majorVersion >= 4) or self.vendor == 'clang':
 					self.compiler.AddToListVar('CFLAGS', '-fvisibility=hidden')
 					self.compiler.AddToListVar('CXXFLAGS', '-fvisibility-inlines-hidden')
@@ -136,7 +137,7 @@ class Stripper:
 					self.compiler.AddToListVar('CXXFLAGS', '-Wno-delete-non-virtual-dtor')
 				self.compiler.AddToListVar('CDEFINES', 'HAVE_STDINT_H')
 				if self.vendor == 'gcc':
-					self.compiler.AddToListVar('CXXFLAGS', '-std=c++11')
+					self.compiler.AddToListVar('CXXFLAGS', '-std=c++14')
 					self.compiler.AddToListVar('CFLAGS', '-mfpmath=sse')
 			elif isinstance(cxx, Cpp.MSVC):
 				self.vendor = 'msvc'
@@ -199,7 +200,7 @@ class Stripper:
 				if self.vendor == 'clang':
 					self.compiler.AddToListVar('CXXFLAGS', '-Wno-implicit-exception-spec-mismatch')
 					self.compiler.AddToListVar('CXXFLAGS', '-Wno-deprecated-register')
-					self.compiler.AddToListVar('CXXFLAGS', '-std=c++11')
+					self.compiler.AddToListVar('CXXFLAGS', '-std=c++14')
 					self.compiler.AddToListVar('POSTLINKFLAGS', '-lgcc_eh')
 			elif AMBuild.target['platform'] == 'darwin':
 				self.compiler.AddToListVar('CDEFINES', 'OSX')
