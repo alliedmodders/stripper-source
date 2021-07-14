@@ -115,6 +115,7 @@ class Stripper:
 				self.compiler.AddToListVar('CDEFINES', 'POSIX')
 				self.compiler.AddToListVar('CFLAGS', '-pipe')
 				self.compiler.AddToListVar('CFLAGS', '-fno-strict-aliasing')
+				self.compiler.AddToListVar('CFLAGS', '-fno-omit-frame-pointer')
 				if (self.vendor == 'gcc' and cxx.majorVersion >= 4) or self.vendor == 'clang':
 					self.compiler.AddToListVar('CFLAGS', '-fvisibility=hidden')
 					self.compiler.AddToListVar('CXXFLAGS', '-fvisibility-inlines-hidden')
