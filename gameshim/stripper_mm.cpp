@@ -289,8 +289,12 @@ LevelInit_handler(char const *pMapName, char const *pMapEntities, char const *c,
     if (strlen(stripper_nextfile.GetString()) > 0) {
         g_mapname.assign(stripper_nextfile.GetString());
         log_message("Loading %s for map \"%s\"", g_mapname.c_str(), pMapName);
+    } else if (stripper_lowercase.GetInt()) {
+        char* name = UTIL_ToLowerCase(pMapName);
+        g_mapname.assign(name);
+        delete[] name;
     } else {
-        g_mapname.assign(stripper_lowercase.GetInt() != 0 ? UTIL_ToLowerCase(pMapName) : pMapName);
+        g_mapname.assign(pMapName);
     }
 
     stripper_nextfile.SetValue("");
