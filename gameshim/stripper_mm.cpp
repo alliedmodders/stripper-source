@@ -129,7 +129,7 @@ ConVar stripper_curfile("stripper_current_file", "", FCVAR_SPONLY | FCVAR_REPLIC
 
 ConVar stripper_nextfile("stripper_next_file", "", FCVAR_PROTECTED | FCVAR_SPONLY, "Stripper for next map");
 
-ConVar stripper_lowercase("stripper_file_lowercase", "0", FCVAR_NONE, "Stripper Load Config in lowercase");
+ConVar stripper_lowercase("stripper_file_lowercase", "0", FCVAR_NONE, "Load stripper configs in lowercase");
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
 void stripper_cfg_path_changed(IConVar *var, const char *pOldValue, float flOldValue)
@@ -308,7 +308,7 @@ UTIL_ToLowerCase(const char *str)
 	for (size_t i = 0; i < len; i++)
 	{
 		if (str[i] >= 'A' && str[i] <= 'Z')
-			buffer[i] = tolower(str[i]);
+			buffer[i] = str[i] - ('A' - 'a');
 		else
 			buffer[i] = str[i];
 	}
