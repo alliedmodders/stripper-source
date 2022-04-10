@@ -125,7 +125,7 @@ static stripper_game_t stripper_game =
 
 ConVar cvar_stripper_cfg_path("stripper_cfg_path", "addons/stripper", FCVAR_NONE, "Stripper Config Path");
 
-ConVar stripper_curfile("stripper_current_file", "", FCVAR_SPONLY | FCVAR_REPLICATED | FCVAR_NOTIFY, "Stripper for current map");
+ConVar stripper_curfile("stripper_current_file", "", FCVAR_SPONLY | FCVAR_NOTIFY, "Stripper for current map");
 
 ConVar stripper_nextfile("stripper_next_file", "", FCVAR_PROTECTED | FCVAR_SPONLY, "Stripper for next map");
 
@@ -399,7 +399,7 @@ SetCommandClient(int client)
     last_command_client = client;
 }
 
-ConVar stripper_version("stripper_version", STRIPPER_FULL_VERSION, FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY, "Stripper Version");
+ConVar stripper_version("stripper_version", STRIPPER_FULL_VERSION, FCVAR_SPONLY | FCVAR_NOTIFY, "Stripper Version");
 
 CON_COMMAND(stripper_dump, "Dumps the map entity list to a file")
 {
