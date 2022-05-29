@@ -1,22 +1,20 @@
 # vim: set ts=2 sw=2 tw=99 noet ft=python: 
 import os.path
 
-compiler = Stripper.DefaultCompiler()
-compiler['CXXINCLUDES'].append(os.path.join(Stripper.mmsPath, 'core'))
+for cxx in MMS.all_targets:
 
-if AMBuild.target['platform'] == 'windows' or AMBuild.target['platform'] == 'darwin':
-	name = 'stripper_mm'
-elif AMBuild.target['platform'] == 'linux':
-	name = 'stripper_mm_i486'
-	compiler['POSTLINKFLAGS'].extend(['-ldl'])
+	if cxx.target.platform != 'linux':
+		name = 'stripper_mm'
+	else:
+		name = 'stripper_mm_i486'
+	
+	binary = MMS.Library(cxx, name)
 
-files = [
-	'stripper_loader.cpp',
+	binary.sources = [
+		'stripper_loader.cpp',
 	]
 
-loader = AMBuild.AddJob(name)
-binary = Cpp.LibraryBuilder(name, AMBuild, loader, compiler)
-binary.AddSourceFiles('loader', files)
-binary.SendToJob()
+	binary.compiler.cxxincludes += [os.path.join(MMS.mms_root, 'core')]
 
-
+	nodes = builder.Add(binary)
+	MMS.binaries += [nodes]

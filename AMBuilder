@@ -1,31 +1,25 @@
 # vim: set ts=2 sw=2 tw=99 noet ft=python: 
 import os.path
 
-compiler = Stripper.DefaultCompiler()
-
-files = [
-	'parser.cpp',
-	'support.cpp'
-	]
-
-if AMBuild.target['platform'] == 'linux':
-	path = os.path.join(AMBuild.sourceFolder, 'pcre', 'libpcre-linux.a')
-elif AMBuild.target['platform'] == 'windows':
-	path = os.path.join(AMBuild.sourceFolder, 'pcre', 'libpcre-windows.lib')
-elif AMBuild.target['platform'] == 'darwin':
-	path = os.path.join(AMBuild.sourceFolder, 'pcre', 'libpcre-darwin.a')
-
-if AMBuild.target['platform'] in ['linux', 'darwin'] and 'stricmp=strcasecmp' not in compiler['CDEFINES']:
-	compiler['CDEFINES'].append('stricmp=strcasecmp')
-	compiler['CDEFINES'].append('_stricmp=strcasecmp')
-	compiler['CDEFINES'].append('_snprintf=snprintf')
-	compiler['CDEFINES'].append('_vsnprintf=vsnprintf')
-	
 name = 'stripper.core'
-loader = AMBuild.AddJob(name)
-binary = Cpp.LibraryBuilder(name, AMBuild, loader, compiler)
-binary.RelinkIfNewer(path)
-binary['POSTLINKFLAGS'].append(path)
-binary.AddSourceFiles('.', files)
-binary.SendToJob()
 
+for cxx in MMS.all_targets:
+
+	binary = MMS.Library(cxx, name)
+
+	binary.sources = [
+		'parser.cpp',
+		'support.cpp'
+	]
+	binary.compiler.cxxincludes += [os.path.join(MMS.mms_root, 'core', 'sourcehook')]
+
+	if binary.compiler.target.arch == 'x86':
+		if cxx.target.platform == 'linux':
+			binary.compiler.postlink += [os.path.join(builder.sourcePath, 'pcre', 'libpcre-linux.a')]
+		elif cxx.target.platform == 'windows':
+			binary.compiler.postlink += [os.path.join(builder.sourcePath, 'pcre', 'libpcre-windows.lib')]
+		elif cxx.target.platform == 'mac':
+			binary.compiler.postlink += [os.path.join(builder.sourcePath, 'pcre', 'libpcre-darwin.a')]
+
+	nodes = builder.Add(binary)
+	MMS.binaries += [nodes]

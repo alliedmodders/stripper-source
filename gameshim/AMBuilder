@@ -1,24 +1,20 @@
 # vim: set ts=2 sw=2 tw=99 noet ft=python: 
 import os
 
-for i in Stripper.sdkInfo:
-	sdk = Stripper.sdkInfo[i]
-	if AMBuild.target['platform'] not in sdk['platform']:
-		continue
+for sdk_name in MMS.sdks:
+	for cxx in MMS.all_targets:
+		sdk = MMS.sdks[sdk_name]
 
-	compiler = Stripper.DefaultHL2Compiler('gameshim', i)
+		if not cxx.target.arch in sdk.platformSpec[cxx.target.platform]:
+			continue
+		
+		name = 'stripper.' + sdk.ext
 
-	if compiler.cc.name == 'gcc':
-		compiler['CFLAGS'].append('-Wno-parentheses')
+		binary = MMS.HL2Library(builder, cxx, name, sdk)
 
-	name = 'stripper.' + sdk['ext']
-	extension = AMBuild.AddJob(name)
-	binary = Cpp.LibraryBuilder(name, AMBuild, extension, compiler)
-	Stripper.PreSetupHL2Job(extension, binary, i)
-	binary.AddSourceFiles('gameshim', [
-		'stripper_mm.cpp'
-		])
-	Stripper.PostSetupHL2Job(extension, binary, i)
-	binary.SendToJob()
+		binary.sources = [
+			'stripper_mm.cpp',
+		]
 
-
+		nodes = builder.Add(binary)
+		MMS.binaries += [nodes]
