@@ -338,8 +338,13 @@ class MMSConfig(object):
 	def HL2Compiler(self, context, cxx, sdk):
 		compiler = cxx.clone()
 		compiler.cxxincludes += [
-      os.path.join(self.mms_root, 'core'),
-      os.path.join(self.mms_root, 'core', 'sourcehook'),
+	  if sdk.name == 'episode1':
+			mms_core_path = os.path.join(self.mms_root, 'core-legacy')
+		else:
+			mms_core_path = os.path.join(self.mms_root, 'core')
+		compiler.cxxincludes += [
+			os.path.join(mms_core_path),
+			os.path.join(mms_core_path, 'sourcehook'),
 			os.path.join(context.currentSourcePath),
 		]
 
@@ -496,10 +501,10 @@ class MMSConfig(object):
 		return binary
 
 if getattr(builder, 'target', None) is not None:
-		sys.stderr.write("Your output folder was configured for AMBuild 2.1, and stripper-source\n")
-		sys.stderr.write("is now configured to use AMBuild 2.2. Please remove your output folder\n")
-		sys.stderr.write("and reconfigure to continue.\n")
-		os._exit(1)
+	sys.stderr.write("Your output folder was configured for AMBuild 2.1, and stripper-source\n")
+	sys.stderr.write("is now configured to use AMBuild 2.2. Please remove your output folder\n")
+	sys.stderr.write("and reconfigure to continue.\n")
+	os._exit(1)
 
 MMS = MMSConfig()
 MMS.detectProductVersion()
@@ -507,8 +512,8 @@ MMS.detectSDKs()
 MMS.configure()
 
 MMS.generated_headers = builder.Build(
-    'buildbot/Versioning',
-    { 'MMS': MMS }
+	'buildbot/Versioning',
+	{ 'MMS': MMS }
   )
 
 BuildScripts = [
