@@ -25,6 +25,15 @@ Stripper g_Stripper;
 stripper_game_t stripper_game;
 
 #if defined _WIN32
+char *strchrnul(const char *str, int c)
+{
+	while(*str)
+	{
+		if (c == *str) break;
+		str++;
+	}
+	return const_cast<char*>(str);
+}
 #define EXPORT extern "C" __declspec(dllexport)
 #elif defined __GNUC__
 #if __GNUC__ == 4
