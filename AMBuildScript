@@ -112,11 +112,6 @@ class MMSConfig(object):
 		if not self.all_targets:
 				raise Exception('No suitable C/C++ compiler was found.')
 
-	def use_auto_versioning(self):
-		if builder.backend != 'amb2':
-			return False
-		return not getattr(builder.options, 'disable_auto_versioning', False)
-
 	def detectProductVersion(self):
 		builder.AddConfigureFile('product.version')
 
