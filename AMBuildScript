@@ -337,11 +337,11 @@ class MMSConfig(object):
 
 	def HL2Compiler(self, context, cxx, sdk):
 		compiler = cxx.clone()
-		compiler.cxxincludes += [
-	  if sdk.name == 'episode1':
+		if sdk.name == 'episode1':
 			mms_core_path = os.path.join(self.mms_root, 'core-legacy')
 		else:
 			mms_core_path = os.path.join(self.mms_root, 'core')
+		
 		compiler.cxxincludes += [
 			os.path.join(mms_core_path),
 			os.path.join(mms_core_path, 'sourcehook'),
@@ -514,7 +514,7 @@ MMS.configure()
 MMS.generated_headers = builder.Build(
 	'buildbot/Versioning',
 	{ 'MMS': MMS }
-  )
+	)
 
 BuildScripts = [
 	'AMBuilder',
