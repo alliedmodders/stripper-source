@@ -106,11 +106,7 @@ path_format(char* buffer, size_t maxlength, const char* fmt, ...)
 static const char*
 get_map_name()
 {
-#if SOURCE_ENGINE==SE_EPISODEONE
-    return STRING(g_SMAPI->pGlobals()->mapname);
-#else
     return STRING(g_SMAPI->GetCGlobals()->mapname);
-#endif
 }
 
 static stripper_game_t stripper_game =
