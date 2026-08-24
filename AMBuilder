@@ -18,12 +18,9 @@ for sdk_target in MMS.sdk_targets:
 
 	binary = MMS.HL2Config(project, builder, cxx, f"{name}.ext.{sdk['extension']}", sdk)
 
-	if binary.compiler.target.arch == 'x86':
-		if cxx.target.platform == 'linux':
-			binary.compiler.postlink += [os.path.join(builder.sourcePath, 'pcre', 'libpcre-linux.a')]
-		elif cxx.target.platform == 'windows':
-			binary.compiler.postlink += [os.path.join(builder.sourcePath, 'pcre', 'libpcre-windows.lib')]
-		elif cxx.target.platform == 'mac':
-			binary.compiler.postlink += [os.path.join(builder.sourcePath, 'pcre', 'libpcre-darwin.a')]
+	lib_prefix = "" if cxx.target.platform == "windows" else "lib"
+	lib_suffix = "lib" if cxx.target.platform == "windows" else "a"
+	binary.compiler.postlink += [os.path.join(builder.sourcePath, "pcre_lib",
+										   f"{cxx.target.platform}-{binary.compiler.target.arch}", f"{lib_prefix}pcre.{lib_suffix}")]
 
 SM.binaries += [builder.Add(project)]
