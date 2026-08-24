@@ -14,8 +14,8 @@ for sdk_target in MMS.sdk_targets:
 	sdk = sdk_target.sdk
 	cxx = sdk_target.cxx
 
-	cxx.sourcedeps += MMS.generated_headers
 	binary = MMS.HL2Config(project, builder, cxx, f"{name}.{sdk['extension']}", sdk)
+	MMS.AddVersioning(binary)
 
 
 MMS.binaries += builder.Add(project)
