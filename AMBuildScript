@@ -90,7 +90,7 @@ class MMSConfig(object):
 		import re
 		with open(os.path.join(builder.sourcePath, 'product.version'), 'r') as fp:
 			productContents = fp.read()
-		m = re.match('(\d+)\.(\d+)\.(\d+).*', productContents)
+		m = re.match(r'(\d+)\.(\d+)\.(\d+).*', productContents)
 		if m == None:
 			self.productVersion = '1.0.0'
 		else:
@@ -138,10 +138,10 @@ class MMSConfig(object):
 	def configure(self):
 		builder.AddConfigureFile('pushbuild.txt')
 
-		allowed_arch = ['x86']
+		allowed_arch = ['x86', 'x86_64']
 		for cxx in self.all_targets:
 			if cxx.target.arch not in allowed_arch:
-				raise Exception('Unknown target architecture: {0}'.format(arch))
+				raise Exception('Unknown target architecture: {0}'.format(cxx.target.arch))
 
 			self.configure_cxx(cxx)
 
