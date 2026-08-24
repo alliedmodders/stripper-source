@@ -333,7 +333,7 @@ class MMSConfig(object):
 	def AddCxxCompat(self, binary):
 		if binary.compiler.target.platform == 'linux':
 			binary.sources += [
-				os.path.join(self.sm_root, 'public', 'amtl', 'compat', 'stdcxx.cpp'),
+				os.path.join(self.mms_root, 'third_party', 'amtl', 'compat', 'stdcxx.cpp'),
 			]
 
 	def HL2Config(self, project, context, compiler, name, sdk):
