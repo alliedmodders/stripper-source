@@ -174,7 +174,11 @@ EXPORT METAMOD_PLUGIN *CreateInterface_MMS(const MetamodVersionInfo *mvi, const 
 	}
 
 	char our_path[256];
+#if defined PLATFORM_64BITS
+	UTIL_Format(our_path, sizeof(our_path), "%s" PATH_SEP_CHAR "%s" PATH_SEP_CHAR "%s", mli->pl_path, "x64", file);
+#else
 	UTIL_Format(our_path, sizeof(our_path), "%s" PATH_SEP_CHAR "%s", mli->pl_path, file);
+#endif
 
 	return TryAndLoadLibrary(our_path);
 }

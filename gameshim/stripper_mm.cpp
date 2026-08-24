@@ -202,11 +202,19 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
 #endif
 
     char path[256];
+#if !defined PLATFORM_64BITS
     g_SMAPI->PathFormat(path,
             sizeof(path),
             "%s/%s/bin/stripper.core" PLATFORM_EXT,
             game_path,
             stripper_game.stripper_path);
+#else
+    g_SMAPI->PathFormat(path,
+            sizeof(path),
+            "%s/%s/bin/x64/stripper.core" PLATFORM_EXT,
+            game_path,
+            stripper_game.stripper_path);
+#endif
 
 #undef PLATFORM_EXT
 

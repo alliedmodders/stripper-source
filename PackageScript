@@ -20,7 +20,7 @@ builder.AddCopy(os.path.join(builder.sourcePath, 'de_dust.cfg'), maps_folder)
 
 pdb_list = []
 for task in MMS.binaries:
-	if task.target.arch == 'x86_64':
+	if task.target.arch == 'x86_64' and not "stripper_mm" in task.binary.path:
 		builder.AddCopy(task.binary, bin64_folder)
 	else:
 		builder.AddCopy(task.binary, bin_folder)

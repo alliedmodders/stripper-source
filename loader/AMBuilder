@@ -21,6 +21,8 @@ for cxx in MMS.all_targets:
 
 	binary.compiler.cxxincludes += [os.path.join(MMS.mms_root, 'core')]
 	binary.compiler.defines += ['META_NO_HL2SDK']
+	if cxx.target.arch == 'x86_64':
+		binary.compiler.defines += ['PLATFORM_64BITS']
 	if binary.compiler.family == 'gcc' or binary.compiler.family == 'clang':
 		binary.compiler.cxxflags += ['-fno-rtti']
 	elif binary.compiler.family == 'msvc':
