@@ -23,4 +23,4 @@ for sdk_target in MMS.sdk_targets:
 	binary.compiler.postlink += [os.path.join(builder.sourcePath, "pcre_lib",
 										   f"{cxx.target.platform}-{binary.compiler.target.arch}", f"{lib_prefix}pcre.{lib_suffix}")]
 
-SM.binaries += [builder.Add(project)]
+SM.binaries += builder.Add(project)

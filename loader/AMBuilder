@@ -3,10 +3,15 @@ import os.path
 
 for cxx in MMS.all_targets:
 
-	if cxx.target.platform != 'linux':
+	if cxx.target.platform in ['windows', 'mac']:
 		name = 'stripper_mm'
-	else:
+		extra_ldflags = []
+	elif cxx.target.platform == 'linux':
 		name = 'stripper_mm_i486'
+		extra_ldflags = ['-ldl']
+
+	if cxx.target.arch == 'x86_64':
+		name = 'stripper_mm.x64'
 	
 	binary = MMS.Library(cxx, name)
 
@@ -15,6 +20,12 @@ for cxx in MMS.all_targets:
 	]
 
 	binary.compiler.cxxincludes += [os.path.join(MMS.mms_root, 'core')]
+	binary.compiler.defines += ['META_NO_HL2SDK']
+	if binary.compiler.family == 'gcc' or binary.compiler.family == 'clang':
+		binary.compiler.cxxflags += ['-fno-rtti']
+	elif binary.compiler.family == 'msvc':
+		binary.compiler.cxxflags += ['/GR-']
+	binary.compiler.linkflags += extra_ldflags
 
 	nodes = builder.Add(binary)
 	MMS.binaries += [nodes]
