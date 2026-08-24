@@ -23,5 +23,6 @@ for sdk_target in MMS.sdk_targets:
 	lib_suffix = "lib" if cxx.target.platform == "windows" else "a"
 	binary.compiler.postlink += [os.path.join(builder.sourcePath, "pcre_lib",
 										   f"{cxx.target.platform}-{binary.compiler.target.arch}", f"{lib_prefix}pcre.{lib_suffix}")]
+	binary.compiler.defines += ['PCRE_STATIC']
 
 MMS.binaries += builder.Add(project)
