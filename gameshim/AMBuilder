@@ -8,7 +8,7 @@ for sdk_name in MMS.sdks:
 		if not cxx.target.arch in sdk.platformSpec[cxx.target.platform]:
 			continue
 		
-		name = 'stripper.' + sdk.ext
+		name = 'stripper.' + sdk['ext']
 
 		binary = MMS.HL2Library(builder, cxx, name, sdk)
 
