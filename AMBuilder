@@ -8,21 +8,22 @@ project_sources = [
 	'support.cpp'
 ]
 
-project = builder.LibraryProject(name)
-project.sources += project_sources
+for cxx in MMS.all_targets:
 
-for sdk_target in MMS.sdk_targets:
-	sdk = sdk_target.sdk
-	cxx = sdk_target.cxx
-	if sdk['name'] == 'mock':
-		continue
+	binary = MMS.Library(cxx, name)
 
-	binary = MMS.HL2Config(project, builder, cxx, f"{name}.ext.{sdk['extension']}", sdk)
+	binary.sources = [
+		'parser.cpp',
+		'support.cpp'
+	]
+	binary.compiler.defines += ['META_NO_HL2SDK', 'PCRE_STATIC']
+	binary.compiler.cxxincludes += [os.path.join(MMS.mms_root, 'core', 'sourcehook')]
 
 	lib_prefix = "" if cxx.target.platform == "windows" else "lib"
 	lib_suffix = "lib" if cxx.target.platform == "windows" else "a"
 	binary.compiler.postlink += [os.path.join(builder.sourcePath, "pcre_lib",
-										   f"{cxx.target.platform}-{binary.compiler.target.arch}", f"{lib_prefix}pcre.{lib_suffix}")]
-	binary.compiler.defines += ['PCRE_STATIC']
+									f"{cxx.target.platform}-{binary.compiler.target.arch}",
+									f"{lib_prefix}pcre.{lib_suffix}")]
 
-MMS.binaries += builder.Add(project)
+	nodes = builder.Add(binary)
+	MMS.binaries += [nodes]
