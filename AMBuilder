@@ -1,17 +1,22 @@
 # vim: set ts=2 sw=2 tw=99 noet ft=python: 
-import os.path
+import os
 
 name = 'stripper.core'
 
-for cxx in MMS.all_targets:
+project_sources = [
+	'parser.cpp',
+	'support.cpp'
+]
 
-	binary = MMS.Library(cxx, name)
+project = builder.LibraryProject(name)
+project.sources += project_sources
 
-	binary.sources = [
-		'parser.cpp',
-		'support.cpp'
-	]
-	binary.compiler.cxxincludes += [os.path.join(MMS.mms_root, 'core', 'sourcehook')]
+for sdk_target in MMS.sdk_targets:
+	sdk = sdk_target.sdk
+	if sdk['name'] == 'mock':
+		continue
+
+	binary = MMS.HL2Config(project, builder, cxx, f"{name}.ext.{sdk['extension']}", sdk)
 
 	if binary.compiler.target.arch == 'x86':
 		if cxx.target.platform == 'linux':
@@ -21,5 +26,4 @@ for cxx in MMS.all_targets:
 		elif cxx.target.platform == 'mac':
 			binary.compiler.postlink += [os.path.join(builder.sourcePath, 'pcre', 'libpcre-darwin.a')]
 
-	nodes = builder.Add(binary)
-	MMS.binaries += [nodes]
+SM.binaries += [builder.Add(project)]
