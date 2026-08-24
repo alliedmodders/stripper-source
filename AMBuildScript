@@ -69,7 +69,7 @@ class MMSConfig(object):
 			except Exception as e:
 				# Error if archs were manually overridden.
 				if builder.options.targets:
-						raise
+					raise
 				print('Skipping target {}: {}'.format(arch, e))
 				continue
 			self.all_targets.append(cxx)
@@ -267,6 +267,7 @@ class MMSConfig(object):
 				cxx.linkflags += ['-static-libgcc']
 			elif cxx.family == 'clang':
 				cxx.linkflags += ['-lgcc_eh']
+			cxx.linkflags += ['-static-libstdc++']
 		elif cxx.target.platform == 'mac':
 			cxx.defines += ['OSX', '_OSX', 'POSIX']
 
