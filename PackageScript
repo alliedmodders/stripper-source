@@ -12,12 +12,7 @@ maps_folder = builder.AddFolder(os.path.join('addons', 'stripper', 'maps'))
 
 for cxx in MMS.all_targets:
 	if cxx.target.arch == 'x86_64':
-		if cxx.target.platform == 'windows':
-			bin64_folder = builder.AddFolder(os.path.join('addons', 'stripper', 'bin', 'win64'))
-		elif cxx.target.platform == 'linux':
-			bin64_folder = builder.AddFolder(os.path.join('addons', 'stripper', 'bin', 'linux64'))
-		elif cxx.target.platform == 'mac':
-			bin64_folder = builder.AddFolder(os.path.join('addons', 'stripper', 'bin', 'osx64'))
+		bin64_folder = builder.AddFolder(os.path.join('addons', 'stripper', 'bin', 'x64'))
 
 builder.AddCopy(os.path.join(builder.sourcePath, 'stripper.vdf'), metamod_folder)
 builder.AddCopy(os.path.join(builder.sourcePath, 'global_filters.cfg'), stripper_folder)
