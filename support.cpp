@@ -131,17 +131,6 @@ command_dump()
 	char szMapName[128];
 	stripper_game.get_map_name(szMapName, sizeof(szMapName));
 
-	//Clean the mapname
-	char* pos = strrchr(szMapName, '/');
-	if (!pos)
-	{
-		pos = strrchr(szMapName, '\\');
-	}
-	if (pos)
-	{
-		memmove(szMapName, pos + 1, strlen(pos + 1) + 1);
-	}
-
 	do
 	{
 		stripper_game.path_format(file,
