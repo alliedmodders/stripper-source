@@ -103,10 +103,32 @@ path_format(char* buffer, size_t maxlength, const char* fmt, ...)
     g_SMAPI->PathFormat(buffer, maxlength, "%s", new_buffer);
 }
 
-static const char*
-get_map_name()
+void
+get_map_display_name(const char* mapName, char* mapDisplay, size_t maxlen)
 {
-    return STRING(g_SMAPI->GetCGlobals()->mapname);
+    // Just copy the string, at least for TF2 the map name will always be
+    // something that looks like this even when the entry in mapcycle
+    // doesn't have the map name
+    // workshop/ctf_convoy_v2.ugc483740681
+
+    snprintf(mapDisplay, maxlen, "%s", mapName);
+
+    // See CHalfLife2::GetMapDisplayName in SM
+    char* pos;
+    if ((pos = strrchr(mapDisplay, '/')) != NULL || (pos = strrchr(mapDisplay, '\\')) != NULL)
+    {
+        snprintf(mapDisplay, maxlen, "%s", &pos[1]);
+    }
+
+    if ((pos = strstr(mapDisplay, ".ugc")) != NULL)
+    {
+        pos[0] = '\0';
+    }
+}
+
+void get_map_name(char* buffer, size_t maxlen)
+{
+    get_map_display_name(STRING(g_SMAPI->GetCGlobals()->mapname), buffer, maxlen);
 }
 
 static stripper_game_t stripper_game =
@@ -144,27 +166,27 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
 
 #if defined METAMOD_PLAPI_VERSION
     GET_V_IFACE_ANY(GetServerFactory, server, IServerGameDLL, INTERFACEVERSION_SERVERGAMEDLL);
-#if SOURCE_ENGINE == SE_TF2 || SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_SDK2013 || SOURCE_ENGINE == SE_BMS
-	// Shim to avoid hooking shims
-	engine = (IVEngineServer *)ismm->GetEngineFactory()("VEngineServer023", nullptr);
-	if (!engine)
-	{
-		engine = (IVEngineServer *)ismm->GetEngineFactory()("VEngineServer022", nullptr);
-		if (!engine)
-		{
-			engine = (IVEngineServer *)ismm->GetEngineFactory()("VEngineServer021", nullptr);
-			if (!engine)
-			{
-				if (error && maxlen)
-				{
-					ismm->Format(error, maxlen, "Could not find interface: VEngineServer023 or VEngineServer022 or VEngineServer021");
-				}
-				return false;
-			}
-		}
-	}
+#if SOURCE_ENGINE == SE_SDK2013
+    // Shim to avoid hooking shims
+    engine = (IVEngineServer *)ismm->GetEngineFactory()("VEngineServer023", nullptr);
+    if (!engine)
+    {
+        engine = (IVEngineServer *)ismm->GetEngineFactory()("VEngineServer022", nullptr);
+        if (!engine)
+        {
+            engine = (IVEngineServer *)ismm->GetEngineFactory()("VEngineServer021", nullptr);
+            if (!engine)
+            {
+                if (error && maxlen)
+                {
+                    ismm->Format(error, maxlen, "Could not find interface: VEngineServer023 or VEngineServer022 or VEngineServer021");
+                }
+                return false;
+            }
+        }
+    }
 #else
-	GET_V_IFACE_CURRENT(GetEngineFactory, engine, IVEngineServer, INTERFACEVERSION_VENGINESERVER);
+    GET_V_IFACE_CURRENT(GetEngineFactory, engine, IVEngineServer, INTERFACEVERSION_VENGINESERVER);
 #endif
     GET_V_IFACE_ANY(GetServerFactory, clients, IServerGameClients, INTERFACEVERSION_SERVERGAMECLIENTS);
 #else
@@ -182,8 +204,8 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
     cvar_stripper_cfg_path.InstallChangeCallback( stripper_cfg_path_changed );
 
 #if SOURCE_ENGINE==SE_DARKMESSIAH
-	ICvar* cvar = GetICVar();
-	const char* temp = (cvar == NULL) ? NULL : cvar->GetCommandLineValue("+stripper_path");
+    ICvar* cvar = GetICVar();
+    const char* temp = (cvar == NULL) ? NULL : cvar->GetCommandLineValue("+stripper_path");
 #else
     const char* temp = CommandLine()->ParmValue("+stripper_path");
 #endif
@@ -282,15 +304,17 @@ GetMapEntitiesString_handler()
 bool
 LevelInit_handler(char const *pMapName, char const *pMapEntities, char const *c, char const *d, bool e, bool f)
 {
+    char mapDisplay[128];
+    get_map_display_name(pMapName, mapDisplay, sizeof(mapDisplay));
     if (strlen(stripper_nextfile.GetString()) > 0) {
         g_mapname.assign(stripper_nextfile.GetString());
-        log_message("Loading %s for map \"%s\"", g_mapname.c_str(), pMapName);
+        log_message("Loading %s for map \"%s\"", g_mapname.c_str(), mapDisplay);
     } else if (stripper_lowercase.GetInt()) {
-        char* name = UTIL_ToLowerCase(pMapName);
+        char* name = UTIL_ToLowerCase(mapDisplay);
         g_mapname.assign(name);
         delete[] name;
     } else {
-        g_mapname.assign(pMapName);
+        g_mapname.assign(mapDisplay);
     }
 
     stripper_nextfile.SetValue("");
@@ -303,17 +327,17 @@ LevelInit_handler(char const *pMapName, char const *pMapEntities, char const *c,
 char*
 UTIL_ToLowerCase(const char *str)
 {
-	size_t len = strlen(str);
-	char *buffer = new char[len + 1];
-	for (size_t i = 0; i < len; i++)
-	{
-		if (str[i] >= 'A' && str[i] <= 'Z')
-			buffer[i] = str[i] - ('A' - 'a');
-		else
-			buffer[i] = str[i];
-	}
-	buffer[len] = '\0';
-	return buffer;
+    size_t len = strlen(str);
+    char *buffer = new char[len + 1];
+    for (size_t i = 0; i < len; i++)
+    {
+        if (str[i] >= 'A' && str[i] <= 'Z')
+            buffer[i] = str[i] - ('A' - 'a');
+        else
+            buffer[i] = str[i];
+    }
+    buffer[len] = '\0';
+    return buffer;
 }
 
 bool
