@@ -128,16 +128,18 @@ command_dump()
 	int num = 0;
 	char file[255];
 
-	char* szMapName = (char*)stripper_game.get_map_name();
+	char szMapName[128];
+	stripper_game.get_map_name(szMapName, sizeof(szMapName));
 
 	//Clean the mapname
-	for (int i = strlen(szMapName); i >= 0; i--)
+	char* pos = strrchr(szMapName, '/');
+	if (!pos)
 	{
-		if (szMapName[i] == '\\' || szMapName[i] == '/')
-		{
-			szMapName += (i + 1);
-			break;
-		}
+		pos = strrchr(szMapName, '\\');
+	}
+	if (pos)
+	{
+		memmove(szMapName, pos + 1, strlen(pos + 1) + 1);
 	}
 
 	do
