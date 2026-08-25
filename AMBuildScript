@@ -295,10 +295,8 @@ class MMSConfig(object):
 
 	def AddVersioning(self, binary):
 		if binary.compiler.target.platform == 'windows':
-			binary.sources += ['version.rc']
 			binary.compiler.rcdefines += [
-				'BINARY_NAME="{0}"'.format(binary.outputFile),
-				'RC_COMPILE'
+				'BINARY_NAME="{0}"'.format(binary.outputFile)
 			]
 		elif binary.compiler.target.platform == 'mac' and binary.type == 'library':
 			binary.compiler.postlink += [

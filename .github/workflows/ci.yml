@@ -1,0 +1,333 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  version:
+    name: Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.compute.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Compute version
+        id: compute
+        run: |
+          base_version=$(cat product.version)
+          build_number=$(git rev-list --count HEAD)
+          echo "version=${base_version}-git${build_number}" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: ${{ matrix.target.os_name }}
+    needs: version
+    runs-on: ${{ matrix.target.os }}
+    container: ${{ matrix.target.container }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - os: ubuntu-latest
+            os_name: linux
+            container: ghcr.io/alliedmodders/build-containers/debian11-clang22:latest
+          - os: windows-latest
+            os_name: windows
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup Python (Windows)
+        if: matrix.target.os_name == 'windows'
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+
+      - name: Install AMBuild
+        if: matrix.target.os_name == 'windows'
+        shell: bash
+        run: python -m pip install --upgrade git+https://github.com/alliedmodders/ambuild.git
+
+      - name: Fetch Metamod:Source
+        uses: actions/checkout@v7
+        with:
+          repository: alliedmodders/metamod-source
+          ref: 1.12-dev
+          path: mmsource
+          submodules: recursive
+
+      # GitHub Actions really should have a native way to do for loops
+      - name: Fetch Episode 1 HL2SDK
+        uses: actions/checkout@v7
+        with:
+          repository: alliedmodders/hl2sdk
+          ref: episode1
+          path: hl2sdk-ep1
+          submodules: recursive
+
+      - name: Fetch Orange Box HL2SDK
+        uses: actions/checkout@v7
+        with:
+          repository: alliedmodders/hl2sdk
+          ref: orangebox
+          path: hl2sdk-ep2
+          submodules: recursive
+
+      - name: Fetch TF2 HL2SDK
+        uses: actions/checkout@v7
+        with:
+          repository: alliedmodders/hl2sdk
+          ref: tf2
+          path: hl2sdk-tf2
+          submodules: recursive
+
+      - name: Fetch DODS HL2SDK
+        uses: actions/checkout@v7
+        with:
+          repository: alliedmodders/hl2sdk
+          ref: dods
+          path: hl2sdk-dods
+          submodules: recursive
+
+      - name: Fetch HL2DM HL2SDK
+        uses: actions/checkout@v7
+        with:
+          repository: alliedmodders/hl2sdk
+          ref: hl2dm
+          path: hl2sdk-hl2dm
+          submodules: recursive
+
+      - name: Fetch Nuclear Dawn HL2SDK
+        uses: actions/checkout@v7
+        with:
+          repository: alliedmodders/hl2sdk
+          ref: nucleardawn
+          path: hl2sdk-nd
+          submodules: recursive
+
+      - name: Fetch Left 4 Dead HL2SDK
+        uses: actions/checkout@v7
+        with:
+          repository: alliedmodders/hl2sdk
+          ref: l4d
+          path: hl2sdk-l4d
+          submodules: recursive
+
+      - name: Fetch Left 4 Dead 2 HL2SDK
+        uses: actions/checkout@v7
+        with:
+          repository: alliedmodders/hl2sdk
+          ref: l4d2
+          path: hl2sdk-l4d2
+          submodules: recursive
+
+      - name: Fetch CSS HL2SDK
+        uses: actions/checkout@v7
+        with:
+          repository: alliedmodders/hl2sdk
+          ref: css
+          path: hl2sdk-css
+          submodules: recursive
+
+      - name: Fetch CSGO HL2SDK
+        uses: actions/checkout@v7
+        with:
+          repository: alliedmodders/hl2sdk
+          ref: csgo
+          path: hl2sdk-csgo
+          submodules: recursive
+
+      - name: Fetch Insurgency HL2SDK
+        uses: actions/checkout@v7
+        with:
+          repository: alliedmodders/hl2sdk
+          ref: insurgency
+          path: hl2sdk-ins
+          submodules: recursive
+
+      - name: Fetch SDK 2013 HL2SDK
+        uses: actions/checkout@v7
+        with:
+          repository: alliedmodders/hl2sdk
+          ref: sdk2013
+          path: hl2sdk-sdk2013
+          submodules: recursive
+
+      - name: Fetch Black Mesa HL2SDK
+        uses: actions/checkout@v7
+        with:
+          repository: alliedmodders/hl2sdk
+          ref: bms
+          path: hl2sdk-bms
+          submodules: recursive
+
+      - name: Fetch Dark Messiah of Might & Magic HL2SDK
+        if: matrix.target.os_name == 'windows'
+        uses: actions/checkout@v7
+        with:
+          repository: alliedmodders/hl2sdk
+          ref: darkm
+          path: hl2sdk-darkm
+          submodules: recursive
+
+      - name: Fetch Alien Swarm HL2SDK
+        if: matrix.target.os_name == 'windows'
+        uses: actions/checkout@v7
+        with:
+          repository: alliedmodders/hl2sdk
+          ref: swarm
+          path: hl2sdk-swarm
+          submodules: recursive
+
+      - name: Fetch Bloody Good Time HL2SDK
+        if: matrix.target.os_name == 'windows'
+        uses: actions/checkout@v7
+        with:
+          repository: alliedmodders/hl2sdk
+          ref: bgt
+          path: hl2sdk-bgt
+          submodules: recursive
+
+      - name: Set environment variables (Linux)
+        if: matrix.target.os_name == 'linux'
+        run: |
+          echo "MMSOURCE=$GITHUB_WORKSPACE/mmsource" >> $GITHUB_ENV
+          echo "HL2SDKEPISODE1=$GITHUB_WORKSPACE/hl2sdk-ep1" >> $GITHUB_ENV
+          echo "HL2SDKORANGEBOX=$GITHUB_WORKSPACE/hl2sdk-ep2" >> $GITHUB_ENV
+          echo "HL2SDKTF2=$GITHUB_WORKSPACE/hl2sdk-tf2" >> $GITHUB_ENV
+          echo "HL2SDKDODS=$GITHUB_WORKSPACE/hl2sdk-dods" >> $GITHUB_ENV
+          echo "HL2SDKHL2DM=$GITHUB_WORKSPACE/hl2sdk-hl2dm" >> $GITHUB_ENV
+          echo "HL2SDKNUCLEARDAWN=$GITHUB_WORKSPACE/hl2sdk-nd" >> $GITHUB_ENV
+          echo "HL2SDKL4D=$GITHUB_WORKSPACE/hl2sdk-l4d" >> $GITHUB_ENV
+          echo "HL2SDKL4D2=$GITHUB_WORKSPACE/hl2sdk-l4d2" >> $GITHUB_ENV
+          echo "HL2SDKCSS=$GITHUB_WORKSPACE/hl2sdk-css" >> $GITHUB_ENV
+          echo "HL2SDKCSGO=$GITHUB_WORKSPACE/hl2sdk-csgo" >> $GITHUB_ENV
+          echo "HL2SDKINSURGENCY=$GITHUB_WORKSPACE/hl2sdk-ins" >> $GITHUB_ENV
+          echo "HL2SDKSDK2013=$GITHUB_WORKSPACE/hl2sdk-sdk2013" >> $GITHUB_ENV
+          echo "HL2SDKBMS=$GITHUB_WORKSPACE/hl2sdk-bms" >> $GITHUB_ENV
+
+      - name: Set environment variables (Windows)
+        if: matrix.target.os_name == 'windows'
+        run: |
+          echo "MMSOURCE=$env:GITHUB_WORKSPACE/mmsource" >> $env:GITHUB_ENV
+          echo "HL2SDKEPISODE1=$env:GITHUB_WORKSPACE/hl2sdk-ep1" >> $env:GITHUB_ENV
+          echo "HL2SDKORANGEBOX=$env:GITHUB_WORKSPACE/hl2sdk-ep2" >> $env:GITHUB_ENV
+          echo "HL2SDKTF2=$env:GITHUB_WORKSPACE/hl2sdk-tf2" >> $env:GITHUB_ENV
+          echo "HL2SDKDODS=$env:GITHUB_WORKSPACE/hl2sdk-dods" >> $env:GITHUB_ENV
+          echo "HL2SDKHL2DM=$env:GITHUB_WORKSPACE/hl2sdk-hl2dm" >> $env:GITHUB_ENV
+          echo "HL2SDKNUCLEARDAWN=$env:GITHUB_WORKSPACE/hl2sdk-nd" >> $env:GITHUB_ENV
+          echo "HL2SDKL4D=$env:GITHUB_WORKSPACE/hl2sdk-l4d" >> $env:GITHUB_ENV
+          echo "HL2SDKL4D2=$env:GITHUB_WORKSPACE/hl2sdk-l4d2" >> $env:GITHUB_ENV
+          echo "HL2SDKCSS=$env:GITHUB_WORKSPACE/hl2sdk-css" >> $env:GITHUB_ENV
+          echo "HL2SDKCSGO=$env:GITHUB_WORKSPACE/hl2sdk-csgo" >> $env:GITHUB_ENV
+          echo "HL2SDKINSURGENCY=$env:GITHUB_WORKSPACE/hl2sdk-ins" >> $env:GITHUB_ENV
+          echo "HL2SDKSDK2013=$env:GITHUB_WORKSPACE/hl2sdk-sdk2013" >> $env:GITHUB_ENV
+          echo "HL2SDKBMS=$env:GITHUB_WORKSPACE/hl2sdk-bms" >> $env:GITHUB_ENV
+          echo "HL2SDKDARKM=$env:GITHUB_WORKSPACE/hl2sdk-darkm" >> $env:GITHUB_ENV
+          echo "HL2SDKSWARM=$env:GITHUB_WORKSPACE/hl2sdk-swarm" >> $env:GITHUB_ENV
+          echo "HL2SDKBGT=$env:GITHUB_WORKSPACE/hl2sdk-bgt" >> $env:GITHUB_ENV
+
+      - name: Build (Linux)
+        if: matrix.target.os_name == 'linux'
+        env:
+          CC: clang-22
+          CXX: clang++-22
+        run: |
+          # add to safe directory so generate_headers.py can use git commands
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          python3 ./configure.py \
+            -o build \
+            --sdks episode1,orangebox,tf2,dods,hl2dm,nucleardawn,l4d,l4d2,css,csgo,insurgency,sdk2013,bms \
+            --enable-optimize
+          cd build
+          ambuild
+
+      - name: Build (Windows)
+        if: matrix.target.os_name == 'windows'
+        shell: bash
+        run: |
+          # add to safe directory so generate_headers.py can use git commands
+          git config --global --add safe.directory "$env:GITHUB_WORKSPACE"
+          python ./configure.py \
+            -o build \
+            --sdks episode1,orangebox,tf2,dods,hl2dm,nucleardawn,l4d,l4d2,css,csgo,insurgency,sdk2013,bms,darkm,swarm,bgt \
+            --enable-optimize
+          cd build
+          ambuild
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: pkg-${{ matrix.target.os_name }}
+          path: build/package
+          if-no-files-found: error
+
+  release:
+    name: Release
+    needs: [version, build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+
+      - name: Assemble packages
+        id: package
+        run: |
+          version="${{ needs.version.outputs.version }}"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+          assets=""
+          for os_name in windows linux; do
+            dest="package-${os_name}/"
+            mkdir "${dest}"
+            cp -r "artifacts/pkg-${os_name}"/* "${dest}/"
+            # create the dumps directory since upload-artifact won't
+            # process empty directories
+            [ -d "${dest}/addons/stripper/dumps" ] || mkdir -p "${dest}/addons/stripper/dumps"
+            if [ "${os_name}" = "windows" ]; then
+              asset="stripper-${version}-windows.zip"
+              (cd "${dest}" && zip -r "../${asset}" *)
+            else
+              # fix permissions of the dlls first
+              pushd "package-${os_name}"/addons/stripper/bin
+              chmod +x *.so
+              pushd x64
+              chmod +x *.so
+              popd
+              popd
+              asset="stripper-${version}-linux.tar.gz"
+              (cd "${dest}" && tar -czf "../${asset}" .)
+            fi
+            assets="${assets} ${asset}"
+          done
+          echo "assets=${assets# }" >> "$GITHUB_OUTPUT"
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ steps.package.outputs.version }}" \
+            ${{ steps.package.outputs.assets }} \
+            --target "${GITHUB_SHA}" \
+            --title "Stripper:Source ${{ steps.package.outputs.version }}" \
+            --notes "Automated release built from ${GITHUB_SHA}."
