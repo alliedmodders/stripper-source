@@ -144,7 +144,7 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
 
 #if defined METAMOD_PLAPI_VERSION
     GET_V_IFACE_ANY(GetServerFactory, server, IServerGameDLL, INTERFACEVERSION_SERVERGAMEDLL);
-#if SOURCE_ENGINE == SE_TF2 || SOURCE_ENGINE == SE_CSS || SOURCE_ENGINE == SE_DODS || SOURCE_ENGINE == SE_HL2DM || SOURCE_ENGINE == SE_SDK2013 || SOURCE_ENGINE == SE_BMS
+#if SOURCE_ENGINE == SE_SDK2013
 	// Shim to avoid hooking shims
 	engine = (IVEngineServer *)ismm->GetEngineFactory()("VEngineServer023", nullptr);
 	if (!engine)
