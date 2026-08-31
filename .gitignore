@@ -30,6 +30,8 @@ LIB-Debug/
 # AMBuild build directories
 build/
 obj-*/
+/pcre/libpcre2-8-*.a
+/pcre/libpcre2-8-*.lib
 *~
 *.rej
 *.orig

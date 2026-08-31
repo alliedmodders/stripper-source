@@ -1,91 +1,113 @@
+# This set of tests checks local-specific features, using the "fr_FR" locale. 
+# It is almost Perl-compatible. When run via RunTest, the locale is edited to
+# be whichever of "fr_FR", "french", or "fr" is found to exist. There is
+# different version of this file called wintestinput3 for use on Windows,
+# where the locale is called "french" and the tests are run using
+# RunTest.bat. 
+
+#forbid_utf
+
 /^[\w]+/
-    *** Failers
+\= Expect no match
     École
 
-/^[\w]+/Lfrench
-    École
-
-/^[\w]+/
-    *** Failers
+/^[\w]+/locale=french
     École
 
 /^[\W]+/
     École
 
-/^[\W]+/Lfrench
-    *** Failers
+/^[\W]+/locale=french
+\= Expect no match
     École
 
 /[\b]/
     \b
-    *** Failers
+\= Expect no match
     a
 
-/[\b]/Lfrench
+/[\b]/locale=french
     \b
-    *** Failers
+\= Expect no match
     a
 
 /^\w+/
-    *** Failers
+\= Expect no match
     École
 
-/^\w+/Lfrench
+/^\w+/locale=french
     École
 
 /(.+)\b(.+)/
     École
 
-/(.+)\b(.+)/Lfrench
-    *** Failers
+/(.+)\b(.+)/locale=french
+\= Expect no match
     École
 
 /École/i
     École
-    *** Failers
+\= Expect no match
     école
 
-/École/iLfrench
+/École/i,locale=french
     École
     école
 
-/\w/IS
+/\w/I
 
-/\w/ISLfrench
+/\w/I,locale=french
 
-/^[\xc8-\xc9]/iLfrench
+# All remaining tests are in the french locale, so set the default.
+
+#pattern locale=french
+
+/^[\xc8-\xc9]/i
     École
     école
 
-/^[\xc8-\xc9]/Lfrench
+/^[\xc8-\xc9]/
     École
-    *** Failers 
+\= Expect no match 
     école
 
-/\W+/Lfrench
+/\xb5/i
+    µ
+\= Expect no match
+    \x9c
+
+/ÿ/i
+    \xff
+\= Expect no match
+    y
+
+/(.)\1/i
+    \xfe\xde
+
+/\W+/
     >>>\xaa<<<
     >>>\xba<<< 
 
-/[\W]+/Lfrench
+/[\W]+/
     >>>\xaa<<<
     >>>\xba<<< 
 
-/[^[:alpha:]]+/Lfrench
+/[^[:alpha:]]+/
     >>>\xaa<<<
     >>>\xba<<< 
 
-/\w+/Lfrench
+/\w+/
     >>>\xaa<<<
     >>>\xba<<< 
 
-/[\w]+/Lfrench
+/[\w]+/
     >>>\xaa<<<
     >>>\xba<<< 
 
-/[[:alpha:]]+/Lfrench
+/[[:alpha:]]+/
     >>>\xaa<<<
     >>>\xba<<< 
     
-/[[:alpha:]][[:lower:]][[:upper:]]/DZLfrench 
+/[[:alpha:]][[:lower:]][[:upper:]]/IB
 
-/ End of testinput3 /
+# End of wintestinput3 

@@ -152,7 +152,7 @@ class MMSConfig(object):
 					sdk.path = sdk_path
 					self.sdks[sdk_name] = sdk
 
-		if len(self.sdks) < 1 and len(sdk_list):
+		if len(self.sdks) < 1 and not use_present and len(sdk_list):
 			raise Exception('No SDKs were found, nothing to build.')
 
 		if builder.options.mms_path:
