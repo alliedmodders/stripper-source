@@ -87,6 +87,18 @@ jobs:
         shell: bash
         run: python -m pip install --upgrade git+https://github.com/alliedmodders/ambuild.git
 
+      - name: Install CMake (Linux)
+        if: matrix.target.os_name == 'linux'
+        shell: bash
+        run: |
+          if command -v sudo >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y cmake
+          else
+            apt-get update
+            apt-get install -y cmake
+          fi
+
       - name: Clone build dependencies
         shell: bash
         run: |
@@ -110,6 +122,10 @@ jobs:
             -DPCRE2_SUPPORT_JIT=OFF
           )
           if [ '${{ matrix.target.os_name }}' = windows ]; then
+            cmake_args+=(
+              -DCMAKE_POLICY_DEFAULT_CMP0091=NEW
+              -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
+            )
             cmake -S pcre -B pcre-build -A '${{ matrix.target.cmake_arch }}' "${cmake_args[@]}"
             cmake --build pcre-build --config Release --target pcre2-8-static
             pcre_lib=$(find pcre-build -name 'pcre2-8-static.lib' -type f | head -n 1)
