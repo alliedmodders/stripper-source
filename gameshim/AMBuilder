@@ -1,20 +1,14 @@
-# vim: set ts=2 sw=2 tw=99 noet ft=python: 
-import os
+# vim: set ts=2 sw=2 tw=99 noet ft=python:
 
-for sdk_name in MMS.sdks:
-	for cxx in MMS.all_targets:
-		sdk = MMS.sdks[sdk_name]
+for target in MMS.sdk_targets:
+	sdk = target.sdk
+	name = 'stripper.' + sdk['extension']
 
-		if not cxx.target.arch in sdk.platformSpec[cxx.target.platform]:
-			continue
-		
-		name = 'stripper.' + sdk.ext
+	binary = MMS.HL2Library(builder, target.cxx, name, sdk)
 
-		binary = MMS.HL2Library(builder, cxx, name, sdk)
+	binary.sources = [
+		'stripper_mm.cpp',
+	]
 
-		binary.sources = [
-			'stripper_mm.cpp',
-		]
-
-		nodes = builder.Add(binary)
-		MMS.binaries += [nodes]
+	nodes = builder.Add(binary)
+	MMS.binaries += [nodes]
