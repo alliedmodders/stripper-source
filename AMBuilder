@@ -13,13 +13,12 @@ for cxx in MMS.all_targets:
 	]
 	binary.compiler.cxxincludes += [os.path.join(MMS.mms_root, 'core', 'sourcehook')]
 
-	if binary.compiler.target.arch == 'x86':
-		if cxx.target.platform == 'linux':
-			binary.compiler.postlink += [os.path.join(builder.sourcePath, 'pcre', 'libpcre-linux.a')]
-		elif cxx.target.platform == 'windows':
-			binary.compiler.postlink += [os.path.join(builder.sourcePath, 'pcre', 'libpcre-windows.lib')]
-		elif cxx.target.platform == 'mac':
-			binary.compiler.postlink += [os.path.join(builder.sourcePath, 'pcre', 'libpcre-darwin.a')]
+	if cxx.target.platform == 'linux':
+		pcre_lib = 'libpcre2-8-linux.a' if cxx.target.arch == 'x86' else 'libpcre2-8-linux64.a'
+		binary.compiler.postlink += [os.path.join(builder.sourcePath, 'pcre', pcre_lib)]
+	elif cxx.target.platform == 'windows':
+		pcre_lib = 'libpcre2-8-windows.lib' if cxx.target.arch == 'x86' else 'libpcre2-8-windows64.lib'
+		binary.compiler.postlink += [os.path.join(builder.sourcePath, 'pcre', pcre_lib)]
 
 	nodes = builder.Add(binary)
 	MMS.binaries += [nodes]

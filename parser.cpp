@@ -9,7 +9,6 @@
  * ===================================
  */
 
-#include "pcre.h"
 #include <sh_stack.h>
 #include <ctype.h>
 #include "parser.h"
@@ -17,6 +16,45 @@
 #include "support.h"
 
 using namespace SourceHook;
+
+static bool MatchRegex(pcre2_code *code,
+                       pcre2_match_data *match_data,
+                       const char *subject,
+                       size_t subject_length,
+                       int *ovector)
+{
+    if (!code || !match_data)
+    {
+        return false;
+    }
+
+    int rc = pcre2_match(code,
+                         (PCRE2_SPTR)subject,
+                         (PCRE2_SIZE)subject_length,
+                         0,
+                         0,
+                         match_data,
+                         NULL);
+    if (rc < 0)
+    {
+        return false;
+    }
+
+    PCRE2_SIZE *matches = pcre2_get_ovector_pointer(match_data);
+    uint32_t match_count = pcre2_get_ovector_count(match_data);
+    uint32_t offset_count = match_count * 2;
+    if (offset_count > 30)
+    {
+        offset_count = 30;
+    }
+
+    for (uint32_t i = 0; i < offset_count; i++)
+    {
+        ovector[i] = matches[i] == PCRE2_UNSET ? -1 : (int)matches[i];
+    }
+
+    return true;
+}
 
 void f_strncpy_s(char *dest, const char *str, size_t n)
 {
@@ -79,10 +117,15 @@ Stripper::Stripper()
     m_resync = false;
 
     const char *pattern = "\"([^\"]+)\"\\s+\"([^\"]+)\"";
-    const char *error;
-    int err_no;
-    brk_re = pcre_compile(pattern, 0, &error, &err_no, NULL);
-    brk_re_extra = pcre_study(brk_re, 0, &error);
+    int error_code;
+    PCRE2_SIZE error_offset;
+    brk_re = pcre2_compile((PCRE2_SPTR)pattern,
+                           PCRE2_ZERO_TERMINATED,
+                           0,
+                           &error_code,
+                           &error_offset,
+                           NULL);
+    brk_match_data = brk_re ? pcre2_match_data_create_from_pattern(brk_re, NULL) : NULL;
     m_tostring = NULL;
     m_tostring_len = 0;
     m_tostring_maxlen = 0;
@@ -91,6 +134,15 @@ Stripper::Stripper()
 Stripper::~Stripper()
 {
     Clear();
+
+    if (brk_match_data)
+    {
+        pcre2_match_data_free(brk_match_data);
+    }
+    if (brk_re)
+    {
+        pcre2_code_free(brk_re);
+    }
 
     while (!m_StringCache.empty())
     {
@@ -212,13 +264,11 @@ void Stripper::SetEntityList(const char *ents)
 
 bool EntPropsMatch(parse_pair *p, ent_prop *e, int *ovector)
 {
-    int rc;
     if (stricmp(p->key.c_str(), e->key.c_str()) == 0)
     {
         if (p->re)
         {
-            rc = pcre_exec(p->re, NULL, e->val.c_str(), e->val.size(), 0, 0, ovector, 30);
-            if (rc >= 0)
+            if (MatchRegex(p->re, p->match_data, e->val.c_str(), e->val.size(), ovector))
             {
                 return true;
             }
@@ -480,8 +530,7 @@ void Stripper::_BuildPropList()
             }
         } else {
             /* try to match our precompiled expression for "..." "..." */
-            int rc = pcre_exec(brk_re, brk_re_extra, s->c_str(), s->size(), 0, 0, ovector, 30);
-            if (rc >= 3)
+            if (MatchRegex(brk_re, brk_match_data, s->c_str(), s->size(), ovector))
             {
                 size_t l = ovector[3] - ovector[2];
                 if (l > _keysize)
@@ -558,8 +607,6 @@ void Stripper::ApplyFileFilter(const char *file)
     CStack<parse_pair *> fpairs;
     Mode mode = Mode_Filter;
     SubMode submode = SubMode_None;
-    const char *error = NULL;
-    int err_offs = -1;
     int line = 0;
     List<parse_pair *>::iterator iter, end;
     replace_prop replace;
@@ -675,8 +722,7 @@ void Stripper::ApplyFileFilter(const char *file)
         } else if (in_block) {
             /* attempt to run our precompiled property match expression */
             len = strlen(buffer);
-            int rc = pcre_exec(brk_re, brk_re_extra, buffer, len, 0, 0, ovector, 30);
-            if (rc >= 3)
+            if (MatchRegex(brk_re, brk_match_data, buffer, len, ovector))
             {
                 size_t len = ovector[3] - ovector[2];
                 if (len > _keysize)
@@ -696,15 +742,39 @@ void Stripper::ApplyFileFilter(const char *file)
                 }
                 /* copy the value */
                 f_strncpy_s(_val, buffer + ovector[4], len);
-                pcre *re = NULL;
+                pcre2_code *re = NULL;
+                pcre2_match_data *match_data = NULL;
                 if (_val[0] == '/' && _val[len-1] == '/')
                 {
                     _val[--len] = '\0';
-                    re = pcre_compile(&(_val[1]), PCRE_CASELESS, &error, &err_offs, NULL);
+                    int error_code;
+                    PCRE2_SIZE error_offset;
+                    re = pcre2_compile((PCRE2_SPTR)&(_val[1]),
+                                       PCRE2_ZERO_TERMINATED,
+                                       PCRE2_CASELESS,
+                                       &error_code,
+                                       &error_offset,
+                                       NULL);
                     if (!re)
                     {
+                        char error[256];
+                        int error_length = pcre2_get_error_message(error_code,
+                                                                   (PCRE2_UCHAR *)error,
+                                                                   sizeof(error));
+                        if (error_length < 0)
+                        {
+                            strcpy(error, "unknown PCRE2 error");
+                        }
                         stripper_game.log_message("File %s parse error (line %d):", file, line);
-                        stripper_game.log_message("Expression(%s): At pos %d, %s", _val, err_offs, error);
+                        stripper_game.log_message("Expression(%s): At pos %d, %s", _val, (int)error_offset, error);
+                        continue;
+                    }
+                    match_data = pcre2_match_data_create_from_pattern(re, NULL);
+                    if (!match_data)
+                    {
+                        pcre2_code_free(re);
+                        stripper_game.log_message("File %s parse error (line %d):", file, line);
+                        stripper_game.log_message("Expression(%s): Unable to allocate PCRE2 match data", _val);
                         continue;
                     }
                 }
@@ -715,9 +785,13 @@ void Stripper::ApplyFileFilter(const char *file)
                     p = new parse_pair;
                 } else {
                     p = fpairs.front();
+                    if (p->match_data)
+                    {
+                        pcre2_match_data_free(p->match_data);
+                    }
                     if (p->re)
                     {
-                        pcre_free(p->re);
+                        pcre2_code_free(p->re);
                     }
                     fpairs.pop();
                 }
@@ -725,6 +799,7 @@ void Stripper::ApplyFileFilter(const char *file)
                 p->key.assign(_key);
                 p->val.assign(_val);
                 p->re = re;
+                p->match_data = match_data;
                 props.push_back(p);
             }
         }
@@ -742,9 +817,13 @@ void Stripper::ApplyFileFilter(const char *file)
     while (!fpairs.empty())
     {
         k = fpairs.front();
+        if (k->match_data)
+        {
+            pcre2_match_data_free(k->match_data);
+        }
         if (k->re)
         {
-            pcre_free(k->re);
+            pcre2_code_free(k->re);
         }
         delete k;
         fpairs.pop();
@@ -849,4 +928,3 @@ void Stripper::AppendToString(const char* buf, size_t len)
     m_tostring_len += len;
     m_tostring[m_tostring_len] = '\0';
 }
-

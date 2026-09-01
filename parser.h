@@ -28,9 +28,12 @@ struct CACHEABLE
 
 struct parse_pair
 {
+    parse_pair() : re(NULL), match_data(NULL) { }
+
     SourceHook::String key;
     SourceHook::String val;
-    pcre *re;
+    pcre2_code *re;
+    pcre2_match_data *match_data;
 };
 
 struct ent_prop : public CACHEABLE
@@ -78,9 +81,8 @@ private:
     SourceHook::List<SourceHook::List<ent_prop *> *> m_props;
     SourceHook::List<SourceHook::String *> m_lines;
     bool m_resync;
-    pcre *brk_re;
-    pcre_extra *brk_re_extra;
+    pcre2_code *brk_re;
+    pcre2_match_data *brk_match_data;
 };
 
 #endif /* _INCLUDE_STRIP_PARSER_H */
-

@@ -1,0 +1,230 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    name: Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.compute.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Compute version
+        id: compute
+        shell: bash
+        run: |
+          base_version=$(sed -e 's/[[:space:]]*$//' -e 's/-dev$//' product.version)
+          build_number=$(git rev-list --count HEAD)
+          echo "version=${base_version}-git${build_number}" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: sm${{ matrix.sm.label }}-${{ matrix.target.os_name }}-${{ matrix.target.arch }}
+    needs: version
+    runs-on: ${{ matrix.target.os }}
+    container: ${{ matrix.target.container }}
+    strategy:
+      fail-fast: false
+      matrix:
+        sm:
+          - label: '1.12'
+            branch: '1.12-dev'
+          - label: '1.13'
+            branch: 'master'
+        target:
+          - os: ubuntu-latest
+            os_name: linux
+            arch: x86
+            container: ghcr.io/alliedmodders/build-containers/debian11-clang22:latest
+          - os: ubuntu-latest
+            os_name: linux
+            arch: x86_64
+            container: ghcr.io/alliedmodders/build-containers/debian11-clang22:latest
+          - os: windows-latest
+            os_name: windows
+            arch: x86
+            msvc_arch: x86
+            cmake_arch: Win32
+          - os: windows-latest
+            os_name: windows
+            arch: x86_64
+            msvc_arch: amd64
+            cmake_arch: x64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Setup Python (Windows)
+        if: matrix.target.os_name == 'windows'
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Setup MSVC (Windows)
+        if: matrix.target.os_name == 'windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.target.msvc_arch }}
+
+      - name: Install AMBuild
+        if: matrix.target.os_name == 'windows'
+        shell: bash
+        run: python -m pip install --upgrade git+https://github.com/alliedmodders/ambuild.git
+
+      - name: Install CMake (Linux)
+        if: matrix.target.os_name == 'linux'
+        shell: bash
+        run: |
+          if command -v sudo >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y cmake
+          else
+            apt-get update
+            apt-get install -y cmake
+          fi
+
+      - name: Clone build dependencies
+        shell: bash
+        run: |
+          git config --global --add safe.directory '*'
+          git clone --depth 1 --recurse-submodules --shallow-submodules -b ${{ matrix.sm.branch }} https://github.com/alliedmodders/sourcemod.git sourcemod
+          git clone --depth 1 --recurse-submodules --shallow-submodules -b 1.12-dev https://github.com/alliedmodders/metamod-source.git metamod-source
+          mkdir -p dependencies/sourcemod
+          (cd dependencies && ../sourcemod/tools/checkout-deps.sh -s orangebox,css,hl2dm,dods,tf2,l4d,l4d2,csgo)
+
+      - name: Build PCRE2
+        shell: bash
+        run: |
+          cmake_args=(
+            -DBUILD_SHARED_LIBS=OFF
+            -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+            -DPCRE2_BUILD_PCRE2_8=ON
+            -DPCRE2_BUILD_PCRE2_16=OFF
+            -DPCRE2_BUILD_PCRE2_32=OFF
+            -DPCRE2_BUILD_PCRE2GREP=OFF
+            -DPCRE2_BUILD_TESTS=OFF
+            -DPCRE2_SUPPORT_JIT=OFF
+          )
+          if [ '${{ matrix.target.os_name }}' = windows ]; then
+            cmake_args+=(
+              -DCMAKE_POLICY_DEFAULT_CMP0091=NEW
+              -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
+            )
+            cmake -S pcre -B pcre-build -A '${{ matrix.target.cmake_arch }}' "${cmake_args[@]}"
+            cmake --build pcre-build --config Release --target pcre2-8-static
+            pcre_lib=$(find pcre-build -name 'pcre2-8-static.lib' -type f | head -n 1)
+            pcre_output='pcre/libpcre2-8-windows.lib'
+            if [ '${{ matrix.target.arch }}' = x86_64 ]; then
+              pcre_output='pcre/libpcre2-8-windows64.lib'
+            fi
+            cp "$pcre_lib" "$pcre_output"
+          else
+            if [ '${{ matrix.target.arch }}' = x86 ]; then
+              cmake_args+=(-DCMAKE_C_FLAGS=-m32)
+            fi
+            cmake -S pcre -B pcre-build \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+              "${cmake_args[@]}"
+            cmake --build pcre-build --target pcre2-8-static
+            pcre_lib=$(find pcre-build -name 'libpcre2-8.a' -type f | head -n 1)
+            cp "$pcre_lib" "pcre/libpcre2-8-linux.a"
+            if [ '${{ matrix.target.arch }}' = x86_64 ]; then
+              mv pcre/libpcre2-8-linux.a pcre/libpcre2-8-linux64.a
+            fi
+          fi
+      - name: Build
+        shell: bash
+        run: |
+          mkdir build && cd build
+          if [ '${{ matrix.target.os_name }}' = windows ]; then
+            py=python
+          else
+            py=python3
+            export CC=clang-22 CXX=clang++-22
+          fi
+          $py ../configure.py \
+            --hl2sdk-root ../dependencies \
+            --hl2sdk-manifest-path ../hl2sdk-manifests \
+            --mms-path ../metamod-source \
+            --sdks=present \
+            --targets ${{ matrix.target.arch }} \
+            --enable-optimize
+          ambuild
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: pkg-sm${{ matrix.sm.label }}-${{ matrix.target.os_name }}-${{ matrix.target.arch }}
+          path: build/package/addons
+          if-no-files-found: error
+
+  release:
+    name: Release
+    needs: [version, build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+
+      - name: Assemble packages
+        id: package
+        shell: bash
+        run: |
+          version='${{ needs.version.outputs.version }}'
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+          assets=""
+          for sm in 1.12 1.13; do
+            for os_name in windows linux; do
+              package_dir="package-sm${sm}-${os_name}"
+              mkdir -p "${package_dir}/addons"
+              for slice in artifacts/pkg-sm${sm}-${os_name}-*/; do
+                cp -a "${slice}." "${package_dir}/addons/"
+              done
+
+              if [ "${os_name}" = windows ]; then
+                asset="stripper-${version}-sm${sm}-windows.zip"
+                (cd "${package_dir}" && zip -r "../${asset}" addons)
+              else
+                asset="stripper-${version}-sm${sm}-linux.tar.gz"
+                tar -czf "${asset}" -C "${package_dir}" addons
+              fi
+              assets="${assets} ${asset}"
+            done
+          done
+          echo "assets=${assets# }" >> "$GITHUB_OUTPUT"
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ steps.package.outputs.version }}" \
+            ${{ steps.package.outputs.assets }} \
+            --target "${GITHUB_SHA}" \
+            --title "Stripper ${{ steps.package.outputs.version }}" \
+            --notes "Automated release built from ${GITHUB_SHA}."
