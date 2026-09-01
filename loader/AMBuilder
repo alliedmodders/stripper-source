@@ -7,7 +7,10 @@ for cxx in MMS.all_targets:
 		name = 'stripper_mm'
 	else:
 		name = 'stripper_mm_i486'
-	
+
+	if cxx.target.arch == 'x86_64':
+		name = 'stripper_mm.x64'
+
 	binary = MMS.Library(cxx, name)
 
 	binary.sources = [
