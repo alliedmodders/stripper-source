@@ -31,18 +31,13 @@ jobs:
           echo "version=${base_version}-git${build_number}" >> "$GITHUB_OUTPUT"
 
   build:
-    name: sm${{ matrix.sm.label }}-${{ matrix.target.os_name }}-${{ matrix.target.arch }}
+    name: stripper-${{ matrix.target.os_name }}-${{ matrix.target.arch }}
     needs: version
     runs-on: ${{ matrix.target.os }}
     container: ${{ matrix.target.container }}
     strategy:
       fail-fast: false
       matrix:
-        sm:
-          - label: '1.12'
-            branch: '1.12-dev'
-          - label: '1.13'
-            branch: 'master'
         target:
           - os: ubuntu-latest
             os_name: linux
@@ -103,10 +98,13 @@ jobs:
         shell: bash
         run: |
           git config --global --add safe.directory '*'
-          git clone --depth 1 --recurse-submodules --shallow-submodules -b ${{ matrix.sm.branch }} https://github.com/alliedmodders/sourcemod.git sourcemod
           git clone --depth 1 --recurse-submodules --shallow-submodules -b 1.12-dev https://github.com/alliedmodders/metamod-source.git metamod-source
-          mkdir -p dependencies/sourcemod
-          (cd dependencies && ../sourcemod/tools/checkout-deps.sh -s orangebox,css,hl2dm,dods,tf2,l4d,l4d2,csgo)
+          mkdir -p dependencies
+          git clone --mirror https://github.com/alliedmodders/hl2sdk.git hl2sdk-proxy-repo
+          for sdk in orangebox css hl2dm dods tf2 l4d l4d2 csgo; do
+            git clone --depth 1 --recurse-submodules --shallow-submodules \
+              -b "$sdk" hl2sdk-proxy-repo "dependencies/hl2sdk-$sdk"
+          done
 
       - name: Build PCRE2
         shell: bash
@@ -171,7 +169,7 @@ jobs:
       - name: Upload package artifact
         uses: actions/upload-artifact@v7
         with:
-          name: pkg-sm${{ matrix.sm.label }}-${{ matrix.target.os_name }}-${{ matrix.target.arch }}
+          name: pkg-${{ matrix.target.os_name }}-${{ matrix.target.arch }}
           path: build/package/addons
           if-no-files-found: error
 
@@ -199,23 +197,21 @@ jobs:
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
           assets=""
-          for sm in 1.12 1.13; do
-            for os_name in windows linux; do
-              package_dir="package-sm${sm}-${os_name}"
-              mkdir -p "${package_dir}/addons"
-              for slice in artifacts/pkg-sm${sm}-${os_name}-*/; do
-                cp -a "${slice}." "${package_dir}/addons/"
-              done
-
-              if [ "${os_name}" = windows ]; then
-                asset="stripper-${version}-sm${sm}-windows.zip"
-                (cd "${package_dir}" && zip -r "../${asset}" addons)
-              else
-                asset="stripper-${version}-sm${sm}-linux.tar.gz"
-                tar -czf "${asset}" -C "${package_dir}" addons
-              fi
-              assets="${assets} ${asset}"
+          for os_name in windows linux; do
+            package_dir="package-${os_name}"
+            mkdir -p "${package_dir}/addons"
+            for slice in artifacts/pkg-${os_name}-*/; do
+              cp -a "${slice}." "${package_dir}/addons/"
             done
+
+            if [ "${os_name}" = windows ]; then
+              asset="stripper-${version}-windows.zip"
+              (cd "${package_dir}" && zip -r "../${asset}" addons)
+            else
+              asset="stripper-${version}-linux.tar.gz"
+              tar -czf "${asset}" -C "${package_dir}" addons
+            fi
+            assets="${assets} ${asset}"
           done
           echo "assets=${assets# }" >> "$GITHUB_OUTPUT"
 
