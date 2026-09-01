@@ -135,6 +135,7 @@ class MMSConfig(object):
 					'-Wno-overloaded-virtual',
 					'-Wno-deprecated-register',
 					'-Wno-implicit-const-int-float-conversion',
+					'-Wno-expansion-to-defined',
 				]
 				if cxx.family == 'gcc':
 					cxx.cflags += ['-mfpmath=sse']
