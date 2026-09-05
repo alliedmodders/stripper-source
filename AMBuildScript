@@ -117,6 +117,9 @@ class MMSConfig(object):
 					'-Wno-uninitialized',
 					'-Wno-unused',
 					'-Wno-switch',
+					'-Wno-array-bounds',
+					'-Wno-unknown-pragmas',
+					'-Wno-dangling-else',
 					'-msse',
 					'-fPIC',
 				]
