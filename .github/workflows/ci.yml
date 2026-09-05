@@ -101,9 +101,9 @@ jobs:
           git clone --depth 1 --recurse-submodules --shallow-submodules -b 1.12-dev https://github.com/alliedmodders/metamod-source.git metamod-source
           mkdir -p dependencies
           git clone --mirror https://github.com/alliedmodders/hl2sdk.git hl2sdk-proxy-repo
-          sdks=("episode1" "orangebox" "css" "hl2dm" "dods" "tf2" "l4d" "l4d2" "csgo" "nucleardawn" "insurgency" "sdk2013" "bms")
+          sdks=("episode1" "orangebox" "css" "hl2dm" "dods" "tf2" "l4d" "l4d2" "csgo" "nucleardawn" "insurgency" "sdk2013" "bms" "pvkii" "doi" "blade" "mcv")
           if [ '${{ matrix.target.os_name }}' = windows ]; then
-            sdks+=("darkm" "swarm" "bgt")
+            sdks+=("darkm" "swarm" "bgt" "contagion" "eye")
           fi
           for sdk in "${sdks[@]}" ; do
             git clone --depth 1 --recurse-submodules --shallow-submodules \

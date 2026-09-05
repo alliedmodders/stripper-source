@@ -39,6 +39,13 @@ inline bool IsPathSepChar(char c) { return (c == '/'); }
 #define MMS_1_6_INS_FILE		"stripper.2.ins" PLATFORM_EXT
 #define MMS_1_6_SDK2013_FILE	"stripper.2.sdk2013" PLATFORM_EXT
 #define MMS_1_6_BMS_FILE		"stripper.2.bms" PLATFORM_EXT
+#define MMS_1_6_DOI_FILE		"stripper.2.doi" PLATFORM_EXT
+#define MMS_1_6_PVKII_FILE		"stripper.2.pvkii" PLATFORM_EXT
+#define MMS_1_6_BLADE_FILE		"stripper.2.blade" PLATFORM_EXT
+#define MMS_1_6_MCV_FILE		"stripper.2.mcv" PLATFORM_EXT
+#define MMS_1_6_PORTAL2_FILE	"stripper.2.portal2" PLATFORM_EXT
+#define MMS_1_6_CONTAGION_FILE	"stripper.2.contagion" PLATFORM_EXT
+#define MMS_1_6_EYE_FILE		"stripper.2.eye" PLATFORM_EXT
 
 HINSTANCE stripper_library = NULL;
 
@@ -134,6 +141,31 @@ EXPORT METAMOD_PLUGIN *CreateInterface_MMS(const MetamodVersionInfo *mvi, const 
 		case SOURCE_ENGINE_HL2DM:
 			file = MMS_1_6_HL2DM_FILE;
 			break;
+		case SOURCE_ENGINE_ORANGEBOXVALVE_DEPRECATED:
+			{
+				const char *gamedir = mvi->GetGameDir();
+				if (strcmp(gamedir, "tf") == 0)
+				{
+					file = MMS_1_6_TF2_FILE;
+				}
+				else if (strcmp(gamedir, "dod") == 0)
+				{
+					file = MMS_1_6_DODS_FILE;
+				}
+				else if (strcmp(gamedir, "hl2mp") == 0)
+				{
+					file = MMS_1_6_HL2DM_FILE;
+				}
+				else if (strcmp(gamedir, "cstrike") == 0)
+				{
+					file = MMS_1_6_CSS_FILE;
+				}
+				else
+				{
+					file = MMS_1_6_EP2_FILE;
+				}
+				break;
+			}
 		case SOURCE_ENGINE_NUCLEARDAWN:
 			file = MMS_1_6_ND_FILE;
 			break;
@@ -145,8 +177,18 @@ EXPORT METAMOD_PLUGIN *CreateInterface_MMS(const MetamodVersionInfo *mvi, const 
 			file = MMS_1_6_L4D_FILE;
 			break;
 		case SOURCE_ENGINE_LEFT4DEAD2:
-			file = MMS_1_6_L4D2_FILE;
-			break;
+			{
+				const char *gamedir = mvi->GetGameDir();
+				if (strcmp(gamedir, "nucleardawn") == 0)
+				{
+					file = MMS_1_6_ND_FILE;
+				}
+				else
+				{
+					file = MMS_1_6_L4D2_FILE;
+				}
+				break;
+			}
 		case SOURCE_ENGINE_DARKMESSIAH:
 			file = MMS_1_6_DARKM_FILE;
 			break;
@@ -170,6 +212,27 @@ EXPORT METAMOD_PLUGIN *CreateInterface_MMS(const MetamodVersionInfo *mvi, const 
 			break;
 		case SOURCE_ENGINE_BMS:
 			file = MMS_1_6_BMS_FILE;
+			break;
+		case SOURCE_ENGINE_DOI:
+			file = MMS_1_6_DOI_FILE;
+			break;
+		case SOURCE_ENGINE_PVKII:
+			file = MMS_1_6_PVKII_FILE;
+			break;
+		case SOURCE_ENGINE_BLADE:
+			file = MMS_1_6_BLADE_FILE;
+			break;
+		case SOURCE_ENGINE_MCV:
+			file = MMS_1_6_MCV_FILE;
+			break;
+		case SOURCE_ENGINE_PORTAL2:
+			file = MMS_1_6_PORTAL2_FILE;
+			break;
+		case SOURCE_ENGINE_CONTAGION:
+			file = MMS_1_6_CONTAGION_FILE;
+			break;
+		case SOURCE_ENGINE_EYE:
+			file = MMS_1_6_EYE_FILE;
 			break;
 	}
 
