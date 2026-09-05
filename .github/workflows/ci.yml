@@ -101,7 +101,11 @@ jobs:
           git clone --depth 1 --recurse-submodules --shallow-submodules -b 1.12-dev https://github.com/alliedmodders/metamod-source.git metamod-source
           mkdir -p dependencies
           git clone --mirror https://github.com/alliedmodders/hl2sdk.git hl2sdk-proxy-repo
-          for sdk in orangebox css hl2dm dods tf2 l4d l4d2 csgo; do
+          sdks=("episode1" "orangebox" "css" "hl2dm" "dods" "tf2" "l4d" "l4d2" "csgo" "nucleardawn" "insurgency" "sdk2013" "bms" "pvkii" "doi" "blade" "mcv")
+          if [ '${{ matrix.target.os_name }}' = windows ]; then
+            sdks+=("darkm" "swarm" "bgt" "contagion" "eye")
+          fi
+          for sdk in "${sdks[@]}" ; do
             git clone --depth 1 --recurse-submodules --shallow-submodules \
               -b "$sdk" hl2sdk-proxy-repo "dependencies/hl2sdk-$sdk"
           done
@@ -202,12 +206,20 @@ jobs:
             mkdir -p "${package_dir}/addons"
             for slice in artifacts/pkg-${os_name}-*/; do
               cp -a "${slice}." "${package_dir}/addons/"
+              [ -d "${package_dir}/addons/stripper/dumps" ] || mkdir -p "${package_dir}/addons/stripper/dumps"
             done
 
             if [ "${os_name}" = windows ]; then
               asset="stripper-${version}-windows.zip"
               (cd "${package_dir}" && zip -r "../${asset}" addons)
             else
+              # fix permissions of the dlls first
+              pushd "${package_dir}"/addons/stripper/bin
+              chmod +x *.so
+              pushd x64
+              chmod +x *.so
+              popd
+              popd
               asset="stripper-${version}-linux.tar.gz"
               tar -czf "${asset}" -C "${package_dir}" addons
             fi
