@@ -196,13 +196,7 @@ class MMSConfig(object):
 			cxx.includes += [os.path.join(builder.buildPath, 'includes')]
 
 	def AddVersioning(self, binary):
-		if binary.compiler.target.platform == 'windows':
-			binary.sources += ['version.rc']
-			binary.compiler.rcdefines += [
-				'BINARY_NAME="{0}"'.format(binary.outputFile),
-				'RC_COMPILE',
-			]
-		elif binary.compiler.target.platform == 'mac' and binary.type == 'library':
+		if binary.compiler.target.platform == 'mac' and binary.type == 'library':
 			binary.compiler.postlink += [
 				'-compatibility_version', '1.0.0',
 				'-current_version', self.productVersion,
