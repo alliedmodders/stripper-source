@@ -166,7 +166,7 @@ bool Stripper::JITCompile()
     {
         return false;
     }
-    if (pcre2_jit_compile(NULL, PCRE2_JIT_TEST_ALLOC) == NULL)
+    if (pcre2_jit_compile(NULL, PCRE2_JIT_TEST_ALLOC) == 0)
     {
         int jit_error = pcre2_jit_compile(brk_re, PCRE2_JIT_COMPLETE);
         if (jit_error != 0)
@@ -799,7 +799,7 @@ void Stripper::ApplyFileFilter(const char *file)
                         stripper_game.log_message("Expression(%s): At pos %d, %s", _val, (int)error_offset, error);
                         continue;
                     }
-                    if (pcre2_jit_compile(NULL, PCRE2_JIT_TEST_ALLOC) == NULL)
+                    if (pcre2_jit_compile(NULL, PCRE2_JIT_TEST_ALLOC) == 0)
                     {
                         int jit_error = pcre2_jit_compile(re, PCRE2_JIT_COMPLETE);
                         if (jit_error != 0)
