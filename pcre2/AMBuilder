@@ -3,8 +3,8 @@
 builder.SetBuildFolder('libpcre2')
 rvalue = {}
 
-for cxx in builder.targets:
-    binary = SM.StaticLibrary(builder, cxx, 'pcre2')
+for cxx in MMS.all_targets:
+    binary = MMS.StaticLibrary(builder, cxx, 'pcre2')
     if binary.compiler.target.platform == 'windows':
         binary.compiler.defines += ['PLATFORM_WINDOWS']
     elif binary.compiler.target.platform == 'mac':

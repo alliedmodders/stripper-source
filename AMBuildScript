@@ -204,6 +204,13 @@ class MMSConfig(object):
 		binary.compiler.sourcedeps += self.generated_headers
 		return binary
 
+	def StaticLibraryBuilder(self, compiler, name):
+		return compiler.StaticLibrary(name)
+
+	def StaticLibrary(self, context, compiler, name):
+		compiler = compiler.clone()
+		return self.StaticLibraryBuilder(compiler, name)
+
 	def Library(self, cxx, name):
 		binary = cxx.Library(name)
 		self.AddVersioning(binary)
