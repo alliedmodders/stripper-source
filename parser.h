@@ -1,5 +1,5 @@
 /** vim: set ts=4 sw=4 et tw=99:
- * 
+ *
  * === Stripper for Metamod:Source ===
  * Copyright (C) 2005-2009 David "BAILOPAN" Anderson
  * No warranties of any kind.
@@ -66,6 +66,7 @@ private:
     void Clear();
     void _BuildPropList();
 private:
+    bool JITCompile();
     SourceHook::String *AllocString();
     void FreeString(SourceHook::String *str);
     ent_prop *AllocProp();
@@ -81,6 +82,7 @@ private:
     SourceHook::List<SourceHook::List<ent_prop *> *> m_props;
     SourceHook::List<SourceHook::String *> m_lines;
     bool m_resync;
+    bool jit_compiled;
     pcre2_code *brk_re;
     pcre2_match_data *brk_match_data;
 };

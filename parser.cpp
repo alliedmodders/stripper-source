@@ -1,5 +1,5 @@
 /** vim: set ts=4 sw=4 et tw=99:
- * 
+ *
  * === Stripper for Metamod:Source ===
  * Copyright (C) 2005-2009 David "BAILOPAN" Anderson
  * No warranties of any kind.
@@ -115,8 +115,9 @@ void UTIL_TrimRight(char *buffer)
 Stripper::Stripper()
 {
     m_resync = false;
+    jit_compiled = false;
 
-    const char *pattern = "\"([^\"]+)\"\\s+\"([^\"]+)\"";
+    static constexpr char pattern[] = "\"([^\"]+)\"\\s+\"([^\"]+)\"";
     int error_code;
     PCRE2_SIZE error_offset;
     brk_re = pcre2_compile((PCRE2_SPTR)pattern,
@@ -133,6 +134,7 @@ Stripper::Stripper()
 
 Stripper::~Stripper()
 {
+    jit_compiled = false;
     Clear();
 
     if (brk_match_data)
@@ -154,8 +156,34 @@ Stripper::~Stripper()
         delete m_PropCache.front();
         m_PropCache.pop();
     }
-    
+
     free(m_tostring);
+}
+
+bool Stripper::JITCompile()
+{
+    if (!brk_re || jit_compiled)
+    {
+        return false;
+    }
+    if (pcre2_jit_compile(NULL, PCRE2_JIT_TEST_ALLOC) == NULL)
+    {
+        int jit_error = pcre2_jit_compile(brk_re, PCRE2_JIT_COMPLETE);
+        if (jit_error != 0)
+        {
+            char jit_error_msg[256];
+            if (pcre2_get_error_message(jit_error, (PCRE2_UCHAR8 *)jit_error_msg, sizeof(jit_error_msg)) < 0)
+            {
+                snprintf(jit_error_msg, sizeof(jit_error_msg), "Unknown PCRE JIT error");
+            }
+            stripper_game.log_message("Cannot request JIT compilation from PCRE, error: %s", jit_error_msg);
+            return false;
+        }
+        jit_compiled = true;
+        return true;
+    }
+
+    return false;
 }
 
 SourceHook::String *Stripper::AllocString()
@@ -203,7 +231,7 @@ void Stripper::FreeProp(ent_prop *prop)
 void Stripper::SetEntityList(const char *ents)
 {
     Clear();
-    
+
     m_resync = false;
     AppendToString(ents, strlen(ents));
 
@@ -257,7 +285,7 @@ void Stripper::SetEntityList(const char *ents)
     }
     /* delete temporary string */
     delete [] _tmp;
-    
+
     /* build the real props list */
     _BuildPropList();
 }
@@ -530,6 +558,7 @@ void Stripper::_BuildPropList()
             }
         } else {
             /* try to match our precompiled expression for "..." "..." */
+            JITCompile();
             if (MatchRegex(brk_re, brk_match_data, s->c_str(), s->size(), ovector))
             {
                 size_t l = ovector[3] - ovector[2];
@@ -643,7 +672,7 @@ void Stripper::ApplyFileFilter(const char *file)
         } else if (!strncmp(buffer, "insert:", 7) && (mode == Mode_Replace)) {
             submode = SubMode_Insert;
         } else if (strcmp(buffer, "{")==0 && !in_block) {
-            /* if we reach a new block and we're not in a block, 
+            /* if we reach a new block and we're not in a block,
              * dump the current props table and reset.
              */
             if (mode != Mode_Replace || (mode == Mode_Replace && submode != SubMode_None))
@@ -652,11 +681,11 @@ void Stripper::ApplyFileFilter(const char *file)
                 props.clear();
             }
         } else if (strncmp(buffer, "}", 1) == 0 && in_block) {
-            /* if we reach the end of a block and we're in a block, 
+            /* if we reach the end of a block and we're in a block,
              * mark the end and flush what we've done
              */
             in_block = false;
-            
+
             if (mode == Mode_Replace)
             {
                 assert(submode != SubMode_None);
@@ -699,8 +728,8 @@ void Stripper::ApplyFileFilter(const char *file)
                 } else if (mode == Mode_Add) {
                     RunAddFilter(props);
                 }
-    
-                /* push each of the unused filters 
+
+                /* push each of the unused filters
                 * and then clear the property list
                 */
                 end = props.end();
@@ -722,6 +751,7 @@ void Stripper::ApplyFileFilter(const char *file)
         } else if (in_block) {
             /* attempt to run our precompiled property match expression */
             len = strlen(buffer);
+            JITCompile();
             if (MatchRegex(brk_re, brk_match_data, buffer, len, ovector))
             {
                 size_t len = ovector[3] - ovector[2];
@@ -768,6 +798,19 @@ void Stripper::ApplyFileFilter(const char *file)
                         stripper_game.log_message("File %s parse error (line %d):", file, line);
                         stripper_game.log_message("Expression(%s): At pos %d, %s", _val, (int)error_offset, error);
                         continue;
+                    }
+                    if (pcre2_jit_compile(NULL, PCRE2_JIT_TEST_ALLOC) == NULL)
+                    {
+                        int jit_error = pcre2_jit_compile(re, PCRE2_JIT_COMPLETE);
+                        if (jit_error != 0)
+                        {
+                            char jit_error_msg[256];
+                            if (pcre2_get_error_message(jit_error, (PCRE2_UCHAR8 *)jit_error_msg, sizeof(jit_error_msg)) < 0)
+                            {
+                                snprintf(jit_error_msg, sizeof(jit_error_msg), "Unknown PCRE JIT error");
+                            }
+                            stripper_game.log_message("Cannot request JIT compilation from PCRE, error: %s", jit_error_msg);
+                        }
                     }
                     match_data = pcre2_match_data_create_from_pattern(re, NULL);
                     if (!match_data)
