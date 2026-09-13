@@ -9,13 +9,17 @@
  * ===================================
  */
 
-#include <sh_stack.h>
+#include <stack>
 #include <ctype.h>
+#include <assert.h>
+#include <string.h>
+#if !defined(_WIN32)
+#include <strings.h>
+#endif
 #include "parser.h"
-#include <sh_string.h>
+#include <string>
 #include "support.h"
 
-using namespace SourceHook;
 
 static bool MatchRegex(pcre2_code *code,
                        pcre2_match_data *match_data,
@@ -148,12 +152,12 @@ Stripper::~Stripper()
 
     while (!m_StringCache.empty())
     {
-        delete m_StringCache.front();
+        delete m_StringCache.top();
         m_StringCache.pop();
     }
     while (!m_PropCache.empty())
     {
-        delete m_PropCache.front();
+        delete m_PropCache.top();
         m_PropCache.pop();
     }
 
@@ -186,19 +190,19 @@ bool Stripper::JITCompile()
     return false;
 }
 
-SourceHook::String *Stripper::AllocString()
+std::string *Stripper::AllocString()
 {
     if (m_StringCache.empty())
     {
-        return new SourceHook::String();
+        return new std::string();
     } else {
-        SourceHook::String *str = m_StringCache.front();
+        std::string *str = m_StringCache.top();
         m_StringCache.pop();
         return str;
     }
 }
 
-void Stripper::FreeString(SourceHook::String *str)
+void Stripper::FreeString(std::string *str)
 {
     m_StringCache.push(str);
 }
@@ -209,7 +213,7 @@ ent_prop *Stripper::AllocProp()
     {
         return new ent_prop;
     } else {
-        ent_prop *p = m_PropCache.front();
+        ent_prop *p = m_PropCache.top();
 #if defined _DEBUG
         assert(p->marked == false);
         p->marked = true;
@@ -257,7 +261,7 @@ void Stripper::SetEntityList(const char *ents)
             /* copy this line */
             f_strncpy_s(_tmp, &(ents[pos]), i-pos+1);
             /* make a new string out of it */
-            String *pstr = AllocString();
+            std::string *pstr = AllocString();
             pstr->assign(_tmp);
             /* push it into the lines table */
             m_lines.push_back(pstr);
@@ -278,7 +282,7 @@ void Stripper::SetEntityList(const char *ents)
         /* copy */
         f_strncpy_s(_tmp, &(ents[pos]), len-pos+1);
         /* new string */
-        String *pstr = AllocString();
+        std::string *pstr = AllocString();
         pstr->assign(_tmp);
         /* push it into the lines table */
         m_lines.push_back(pstr);
@@ -311,9 +315,9 @@ bool EntPropsMatch(parse_pair *p, ent_prop *e, int *ovector)
     return false;
 }
 
-void ListRecycle(SourceHook::List<parse_pair *> &toread, SourceHook::List<parse_pair *> &towrite)
+void ListRecycle(std::list<parse_pair *> &toread, std::list<parse_pair *> &towrite)
 {
-    SourceHook::List<parse_pair *>::iterator iter;
+    std::list<parse_pair *>::iterator iter;
     for (iter=toread.begin(); iter!=toread.end(); iter++)
     {
         towrite.push_back((*iter));
@@ -321,12 +325,12 @@ void ListRecycle(SourceHook::List<parse_pair *> &toread, SourceHook::List<parse_
     toread.clear();
 }
 
-void Stripper::RunReplaceFilter(replace_prop &replace, SourceHook::List<parse_pair *> &props)
+void Stripper::RunReplaceFilter(replace_prop &replace, std::list<parse_pair *> &props)
 {
-    List<List<ent_prop *> *>::iterator ent_iter;
-    List<ent_prop *>::iterator prop_iter;
-    List<parse_pair *>::iterator parse_iter;
-    List<ent_prop *> *proplist;
+    std::list<std::list<ent_prop *> *>::iterator ent_iter;
+    std::list<ent_prop *>::iterator prop_iter;
+    std::list<parse_pair *>::iterator parse_iter;
+    std::list<ent_prop *> *proplist;
     ent_prop *e;
     parse_pair *p;
     size_t num_match = 0;
@@ -438,12 +442,12 @@ void Stripper::RunReplaceFilter(replace_prop &replace, SourceHook::List<parse_pa
     ListRecycle(replace.to_replace, props);
 }
 
-void Stripper::RunRemoveFilter(SourceHook::List<parse_pair *> &filters)
+void Stripper::RunRemoveFilter(std::list<parse_pair *> &filters)
 {
-    List<List<ent_prop *> *>::iterator proplist_iter;
-    List<ent_prop *> *proplist;
-    List<ent_prop *>::iterator ent_iter;
-    List<parse_pair *>::iterator pair_iter, pair_iter_begin, pair_iter_end;
+    std::list<std::list<ent_prop *> *>::iterator proplist_iter;
+    std::list<ent_prop *> *proplist;
+    std::list<ent_prop *>::iterator ent_iter;
+    std::list<parse_pair *>::iterator pair_iter, pair_iter_begin, pair_iter_end;
     parse_pair *p;
     ent_prop *e;
 
@@ -500,12 +504,12 @@ void Stripper::RunRemoveFilter(SourceHook::List<parse_pair *> &filters)
     }
 }
 
-void Stripper::RunAddFilter(SourceHook::List<parse_pair *> &list)
+void Stripper::RunAddFilter(std::list<parse_pair *> &list)
 {
-    List<parse_pair *>::iterator iter, end=list.end();
+    std::list<parse_pair *>::iterator iter, end=list.end();
     iter=list.begin();
 
-    List<ent_prop *> *cl = new List<ent_prop *>();
+    std::list<ent_prop *> *cl = new std::list<ent_prop *>();
     ent_prop *e;
     while (iter != end)
     {
@@ -530,9 +534,9 @@ void Stripper::_BuildPropList()
     size_t _valsize = 0;
 
     bool in_block = false;
-    List<String *>::iterator iter, end=m_lines.end();
-    String *s;
-    List<ent_prop *> *cl = NULL;
+    std::list<std::string *>::iterator iter, end=m_lines.end();
+    std::string *s;
+    std::list<ent_prop *> *cl = NULL;
     for (iter=m_lines.begin(); iter!=end; iter++)
     {
         s = (*iter);
@@ -542,7 +546,7 @@ void Stripper::_BuildPropList()
             in_block = true;
             if (!cl)
             {
-                cl = new List<ent_prop *>();
+                cl = new std::list<ent_prop *>();
             }
         } else if (*(s->c_str()) == '}' && in_block) {
             /* if we reached a '}' ane we're in a block, end the old block
@@ -554,7 +558,7 @@ void Stripper::_BuildPropList()
             if (*(s->c_str() + 1) == '{')
             {
                 in_block = true;
-                cl = new List<ent_prop *>();
+                cl = new std::list<ent_prop *>();
             }
         } else {
             /* try to match our precompiled expression for "..." "..." */
@@ -632,12 +636,12 @@ void Stripper::ApplyFileFilter(const char *file)
     };
 
     bool in_block = false;
-    List<parse_pair *> props;
-    CStack<parse_pair *> fpairs;
+    std::list<parse_pair *> props;
+    std::stack<parse_pair *> fpairs;
     Mode mode = Mode_Filter;
     SubMode submode = SubMode_None;
     int line = 0;
-    List<parse_pair *>::iterator iter, end;
+    std::list<parse_pair *>::iterator iter, end;
     replace_prop replace;
     while (!feof(fp))
     {
@@ -827,7 +831,7 @@ void Stripper::ApplyFileFilter(const char *file)
                 {
                     p = new parse_pair;
                 } else {
-                    p = fpairs.front();
+                    p = fpairs.top();
                     if (p->match_data)
                     {
                         pcre2_match_data_free(p->match_data);
@@ -859,7 +863,7 @@ void Stripper::ApplyFileFilter(const char *file)
     parse_pair *k = NULL;
     while (!fpairs.empty())
     {
-        k = fpairs.front();
+        k = fpairs.top();
         if (k->match_data)
         {
             pcre2_match_data_free(k->match_data);
@@ -888,8 +892,8 @@ const char *Stripper::ToString()
         m_tostring[0] = '\0';
     m_tostring_len = 0;
 
-    List<List<ent_prop *> *>::iterator iter, end=m_props.end(), begin=m_props.begin();
-    List<ent_prop *>::iterator eiter, eend;
+    std::list<std::list<ent_prop *> *>::iterator iter, end=m_props.end(), begin=m_props.begin();
+    std::list<ent_prop *>::iterator eiter, eend;
     bool first = true;
 
     for (iter=m_props.begin(); iter!=end; iter++)
@@ -920,7 +924,7 @@ const char *Stripper::ToString()
 
 void Stripper::Clear()
 {
-    List<String *>::iterator lines_iter;
+    std::list<std::string *>::iterator lines_iter;
 
     lines_iter = m_lines.begin();
     while (lines_iter != m_lines.end())
@@ -930,8 +934,8 @@ void Stripper::Clear()
     }
     m_lines.clear();
 
-    List<ent_prop *>::iterator iter2, end2;
-    List<List<ent_prop *> *>::iterator iter3, end3;
+    std::list<ent_prop *>::iterator iter2, end2;
+    std::list<std::list<ent_prop *> *>::iterator iter3, end3;
 
     iter3 = m_props.begin();
     end3 = m_props.end();
