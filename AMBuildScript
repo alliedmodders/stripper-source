@@ -130,13 +130,14 @@ class MMSConfig(object):
 					cxx.cflags += ['-m64']
 					cxx.linkflags += ['-m64']
 				cxx.cxxflags += [
-					'-std=c++14',
+					'-std=c++17',
 					'-fno-exceptions',
 					'-fno-rtti',
 					'-fno-threadsafe-statics',
 					'-Wno-non-virtual-dtor',
 					'-Wno-overloaded-virtual',
 					'-Wno-deprecated-register',
+					'-Wno-register',
 					'-Wno-implicit-const-int-float-conversion',
 					'-Wno-expansion-to-defined',
 				]
@@ -156,7 +157,7 @@ class MMSConfig(object):
 					'_CRT_NONSTDC_NO_DEPRECATE',
 				]
 				cxx.cflags += ['/MT', '/W3', '/Zi', '/Oy-']
-				cxx.cxxflags += ['/TP']
+				cxx.cxxflags += ['/TP', '/std:c++17']
 				cxx.linkflags += [
 					'/SUBSYSTEM:WINDOWS',
 					'kernel32.lib',
@@ -220,7 +221,7 @@ class MMSConfig(object):
 		compiler = cxx.clone()
 		compiler.cxxincludes += [
 			os.path.join(self.mms_root, 'core'),
-			os.path.join(self.mms_root, 'core', 'sourcehook'),
+			os.path.join(self.mms_root, 'third_party', 'khook', 'include'),
 		]
 		for other_sdk in self.sdk_manifests:
 			compiler.defines += ['SE_{}={}'.format(other_sdk['define'], other_sdk['code'])]

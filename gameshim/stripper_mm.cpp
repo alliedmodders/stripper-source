@@ -17,11 +17,11 @@
 #define vsnprintf _vsnprintf
 #endif
 #include "stripper_mm.h"
+#include <khook.hpp>
 #include "intercom.h"
 #include "icommandline.h"
 #include <stripper_version_auto.h>
 
-using namespace SourceHook;
 
 StripperPlugin g_Plugin;
 
@@ -36,9 +36,13 @@ static char game_path[256];
 static char stripper_path[256];
 static char stripper_cfg_path[256];
 
-SH_DECL_HOOK0(IVEngineServer, GetMapEntitiesString, SH_NOATTRIB, 0, const char *);
-SH_DECL_HOOK6(IServerGameDLL, LevelInit, SH_NOATTRIB, 0, bool, char const *, char const *, char const *, char const *, bool, bool);
-SH_DECL_HOOK1_void(IServerGameClients, SetCommandClient, SH_NOATTRIB, 0, int);
+static KHook::Return<const char *> Hook_GetMapEntitiesString(IVEngineServer *pEngine);
+static KHook::Return<bool> Hook_LevelInit(IServerGameDLL *pServer, char const *pMapName, char const *pMapEntities, char const *pOldLevel, char const *pLandmarkName, bool loadGame, bool background);
+static KHook::Return<void> Hook_SetCommandClient(IServerGameClients *pClients, int client);
+
+static KHook::Virtual<IVEngineServer, const char *> g_HookGetMapEntitiesString(&IVEngineServer::GetMapEntitiesString, Hook_GetMapEntitiesString, nullptr);
+static KHook::Virtual<IServerGameDLL, bool, char const *, char const *, char const *, char const *, bool, bool> g_HookLevelInit(&IServerGameDLL::LevelInit, Hook_LevelInit, nullptr);
+static KHook::Virtual<IServerGameClients, void, int> g_HookSetCommandClient(&IServerGameClients::SetCommandClient, Hook_SetCommandClient, nullptr);
 
 #if !defined ORANGEBOX_BUILD
 ICvar* g_pCVar = NULL;
@@ -275,9 +279,9 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
 
     stripper_load(&stripper_game, &stripper_core);
 
-    SH_ADD_HOOK_STATICFUNC(IVEngineServer, GetMapEntitiesString, engine, GetMapEntitiesString_handler, false);
-    SH_ADD_HOOK_STATICFUNC(IServerGameDLL, LevelInit, server, LevelInit_handler, false);
-    SH_ADD_HOOK_STATICFUNC(IServerGameClients, SetCommandClient, clients, SetCommandClient, false);
+    g_HookGetMapEntitiesString.Add(engine);
+    g_HookLevelInit.Add(server);
+    g_HookSetCommandClient.Add(clients);
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
     g_pCVar = GetICVar();
@@ -292,9 +296,9 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
 bool
 StripperPlugin::Unload(char *error, size_t maxlen)
 {
-    SH_REMOVE_HOOK_STATICFUNC(IVEngineServer, GetMapEntitiesString, engine, GetMapEntitiesString_handler, false);
-    SH_REMOVE_HOOK_STATICFUNC(IServerGameDLL, LevelInit, server, LevelInit_handler, false);
-    SH_REMOVE_HOOK_STATICFUNC(IServerGameClients, SetCommandClient, clients, SetCommandClient, false);
+    g_HookGetMapEntitiesString.Remove(engine);
+    g_HookLevelInit.Remove(server);
+    g_HookSetCommandClient.Remove(clients);
     stripper_core.unload();
     dlclose(stripper_lib);
     stripper_lib = NULL;
@@ -302,14 +306,14 @@ StripperPlugin::Unload(char *error, size_t maxlen)
     return true;
 }
 
-const char*
-GetMapEntitiesString_handler()
+static KHook::Return<const char *>
+Hook_GetMapEntitiesString(IVEngineServer *pEngine)
 {
-    RETURN_META_VALUE(MRES_SUPERCEDE, stripper_core.ent_string());
+    return { KHook::Action::Supersede, stripper_core.ent_string() };
 }
 
-bool
-LevelInit_handler(char const *pMapName, char const *pMapEntities, char const *c, char const *d, bool e, bool f)
+static KHook::Return<bool>
+Hook_LevelInit(IServerGameDLL *pServer, char const *pMapName, char const *pMapEntities, char const *c, char const *d, bool e, bool f)
 {
     char mapDisplay[128];
     get_map_display_name(pMapName, mapDisplay, sizeof(mapDisplay));
@@ -328,7 +332,8 @@ LevelInit_handler(char const *pMapName, char const *pMapEntities, char const *c,
     stripper_curfile.SetValue(g_mapname.c_str());
 
     const char *ents = stripper_core.parse_map(g_mapname.c_str(), pMapEntities);
-    RETURN_META_VALUE_NEWPARAMS(MRES_IGNORED, true, &IServerGameDLL::LevelInit, (pMapName, ents, c, d, e, f));
+    bool ret = g_HookLevelInit.CallOriginal(pServer, pMapName, ents, c, d, e, f);
+    return { KHook::Action::Supersede, ret };
 }
 
 char*
@@ -420,10 +425,11 @@ StripperPlugin::RegisterConCommandBase(ConCommandBase *pVar)
 
 static int last_command_client = 1;
 
-static void
-SetCommandClient(int client)
+static KHook::Return<void>
+Hook_SetCommandClient(IServerGameClients *pClients, int client)
 {
     last_command_client = client;
+    return { KHook::Action::Ignore };
 }
 
 ConVar stripper_version("stripper_version", STRIPPER_FULL_VERSION, FCVAR_SPONLY | FCVAR_NOTIFY, "Stripper Version");
