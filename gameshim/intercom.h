@@ -1,5 +1,5 @@
 /** vim: set ts=4 sw=4 et tw=99:
- * 
+ *
  * === Stripper for Metamod:Source ===
  * Copyright (C) 2005-2009 David "BAILOPAN" Anderson
  * No warranties of any kind.
@@ -21,6 +21,7 @@ struct stripper_game_t
     void (*log_message)(const char *fmt, ...);
     void (*path_format)(char* buffer, size_t maxlength, const char* fmt, ...);
     void (*get_map_name)(char* buffer, size_t maxlen);
+    bool (*should_disable_jit)();
 };
 
 struct stripper_core_t

@@ -1,5 +1,5 @@
 /** vim: set ts=4 sw=4 et tw=99:
- * 
+ *
  * === Stripper for Metamod:Source ===
  * Copyright (C) 2005-2009 David "BAILOPAN" Anderson
  * No warranties of any kind.
@@ -30,6 +30,7 @@ PLUGIN_EXPOSE(StripperPlugin, g_Plugin);
 static IVEngineServer *engine = NULL;
 static IServerGameDLL *server = NULL;
 static IServerGameClients* clients = NULL;
+static bool disable_jit = false;
 static std::string g_mapname;
 static stripper_core_t stripper_core;
 static char game_path[256];
@@ -130,6 +131,11 @@ void get_map_name(char* buffer, size_t maxlen)
     get_map_display_name(STRING(g_SMAPI->GetCGlobals()->mapname), buffer, maxlen);
 }
 
+bool should_disable_jit()
+{
+    return disable_jit;
+}
+
 static stripper_game_t stripper_game =
 {
     NULL,
@@ -138,6 +144,7 @@ static stripper_game_t stripper_game =
     log_message,
     path_format,
     get_map_name,
+    should_disable_jit
 };
 
 ConVar cvar_stripper_cfg_path("stripper_cfg_path", "addons/stripper", FCVAR_NONE, "Stripper Config Path");
@@ -147,6 +154,8 @@ ConVar stripper_curfile("stripper_current_file", "", FCVAR_SPONLY | FCVAR_NOTIFY
 ConVar stripper_nextfile("stripper_next_file", "", FCVAR_PROTECTED | FCVAR_SPONLY, "Stripper for next map");
 
 ConVar stripper_lowercase("stripper_file_lowercase", "0", FCVAR_NONE, "Load stripper configs in lowercase");
+
+ConVar stripper_jit_disable("stripper_jit_disable", "0", FCVAR_NONE, "Disable JIT compilation for Regex patterns in Stripper (set via command line)");
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
 void stripper_cfg_path_changed(IConVar *var, const char *pOldValue, float flOldValue)
@@ -212,6 +221,16 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
     {
         g_SMAPI->PathFormat(stripper_path, sizeof(stripper_path), "%s", temp);
         stripper_game.stripper_path = stripper_path;
+    }
+
+#if SOURCE_ENGINE==SE_DARKMESSIAH
+    const char* jit_disable_value = (cvar == NULL) ? NULL : cvar->GetCommandLineValue("+stripper_jit_disable");
+#else
+    const char* jit_disable_value = CommandLine()->ParmValue("+stripper_jit_disable");
+#endif
+    if (jit_disable_value != NULL && jit_disable_value[0] != '\0')
+    {
+        disable_jit = strcmp(jit_disable_value, "1") == 0;
     }
 
 #if defined __linux__

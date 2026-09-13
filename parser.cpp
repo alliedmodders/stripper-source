@@ -562,7 +562,10 @@ void Stripper::_BuildPropList()
             }
         } else {
             /* try to match our precompiled expression for "..." "..." */
-            JITCompile();
+            if (!stripper_game.should_disable_jit())
+            {
+                JITCompile();
+            }
             if (MatchRegex(brk_re, brk_match_data, s->c_str(), s->size(), ovector))
             {
                 size_t l = ovector[3] - ovector[2];
@@ -755,7 +758,10 @@ void Stripper::ApplyFileFilter(const char *file)
         } else if (in_block) {
             /* attempt to run our precompiled property match expression */
             len = strlen(buffer);
-            JITCompile();
+            if (!stripper_game.should_disable_jit())
+            {
+                JITCompile();
+            }
             if (MatchRegex(brk_re, brk_match_data, buffer, len, ovector))
             {
                 size_t len = ovector[3] - ovector[2];
@@ -803,7 +809,7 @@ void Stripper::ApplyFileFilter(const char *file)
                         stripper_game.log_message("Expression(%s): At pos %d, %s", _val, (int)error_offset, error);
                         continue;
                     }
-                    if (pcre2_jit_compile(NULL, PCRE2_JIT_TEST_ALLOC) == 0)
+                    if (!stripper_game.should_disable_jit() && pcre2_jit_compile(NULL, PCRE2_JIT_TEST_ALLOC) == 0)
                     {
                         int jit_error = pcre2_jit_compile(re, PCRE2_JIT_COMPLETE);
                         if (jit_error != 0)
