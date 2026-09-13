@@ -224,7 +224,6 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
     }
 
 #if SOURCE_ENGINE==SE_DARKMESSIAH
-    ICvar* cvar = GetICVar();
     const char* jit_disable_value = (cvar == NULL) ? NULL : cvar->GetCommandLineValue("+stripper_jit_disable");
 #else
     const char* jit_disable_value = CommandLine()->ParmValue("+stripper_jit_disable");
