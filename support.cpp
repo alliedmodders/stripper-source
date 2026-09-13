@@ -10,6 +10,10 @@
  */
 #include <new>
 #include <stdio.h>
+#include <string.h>
+#if !defined(_WIN32)
+#include <strings.h>
+#endif
 #include "support.h"
 #include "parser.h"
 #if defined WIN32

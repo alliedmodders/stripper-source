@@ -12,9 +12,7 @@
 #define _INCLUDE_SAMPLEPLUGIN_H
 
 #include <ISmmPlugin.h>
-#include <sh_string.h>
-#include <sh_list.h>
-#include <sh_stack.h>
+#include <string>
 
 class StripperPlugin : 
     public ISmmPlugin, 

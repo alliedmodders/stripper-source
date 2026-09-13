@@ -30,7 +30,7 @@ PLUGIN_EXPOSE(StripperPlugin, g_Plugin);
 static IVEngineServer *engine = NULL;
 static IServerGameDLL *server = NULL;
 static IServerGameClients* clients = NULL;
-static SourceHook::String g_mapname;
+static std::string g_mapname;
 static stripper_core_t stripper_core;
 static char game_path[256];
 static char stripper_path[256];
