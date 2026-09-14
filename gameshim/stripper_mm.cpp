@@ -333,7 +333,7 @@ StripperPlugin::Unload(char *error, size_t maxlen)
 const char*
 GetMapEntitiesString_handler()
 #else
-static KHook::Return<const char *>
+KHook::Return<const char *>
 GetMapEntitiesString_handler(IVEngineServer *pEngine)
 #endif
 {
@@ -348,7 +348,7 @@ GetMapEntitiesString_handler(IVEngineServer *pEngine)
 bool
 LevelInit_handler(char const *pMapName, char const *pMapEntities, char const *c, char const *d, bool e, bool f)
 #else
-static KHook::Return<bool>
+KHook::Return<bool>
 LevelInit_handler(IServerGameDLL *pServer, char const *pMapName, char const *pMapEntities, char const *c, char const *d, bool e, bool f)
 #endif
 {
