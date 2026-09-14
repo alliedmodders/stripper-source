@@ -1,5 +1,6 @@
 # vim: set sts=2 ts=8 sw=2 tw=99 et ft=python:
 import os
+import re
 
 
 def ResolveEnvPath(env, folder):
@@ -217,12 +218,27 @@ class MMSConfig(object):
 		self.AddVersioning(binary)
 		return binary
 
+	def get_mms_version(self):
+		mms_version_file = os.path.join(self.mms_root, "product.version")
+		if not os.path.isfile(mms_version_file):
+			raise Exception("Could not find product.version under Metamod:Source root")
+		with open(mms_version_file, "r") as f:
+			version = f.read().strip()
+		match = re.match(r'([0-9]+).([0-9]+).([0-9]+).*', version)
+		if match:
+			return match.groups()
+		raise Exception("Could not parse product.version from Metamod:Source")
+
 	def HL2Library(self, context, cxx, name, sdk):
 		compiler = cxx.clone()
 		compiler.cxxincludes += [
 			os.path.join(self.mms_root, 'core'),
-			os.path.join(self.mms_root, 'third_party', 'khook', 'include'),
 		]
+		mms_major = int(self.get_mms_version()[0])
+		if mms_major >= 2:
+			compiler.cxxincludes += [os.path.join(self.mms_root, 'third_party', 'khook', 'include')]
+		else:
+			compiler.cxxincludes += [os.path.join(self.mms_root, 'core', 'sourcehook')]
 		for other_sdk in self.sdk_manifests:
 			compiler.defines += ['SE_{}={}'.format(other_sdk['define'], other_sdk['code'])]
 		binary = self.Library(compiler, name)

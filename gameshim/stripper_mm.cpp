@@ -17,11 +17,16 @@
 #define vsnprintf _vsnprintf
 #endif
 #include "stripper_mm.h"
+#if METAMOD_PLAPI_VERSION >= 18
 #include <khook.hpp>
+#endif
 #include "intercom.h"
 #include "icommandline.h"
 #include <stripper_version_auto.h>
 
+#if METAMOD_PLAPI_VERSION < 18
+using namespace SourceHook;
+#endif
 
 StripperPlugin g_Plugin;
 
@@ -36,13 +41,14 @@ static char game_path[256];
 static char stripper_path[256];
 static char stripper_cfg_path[256];
 
-static KHook::Return<const char *> Hook_GetMapEntitiesString(IVEngineServer *pEngine);
-static KHook::Return<bool> Hook_LevelInit(IServerGameDLL *pServer, char const *pMapName, char const *pMapEntities, char const *pOldLevel, char const *pLandmarkName, bool loadGame, bool background);
-static KHook::Return<void> Hook_SetCommandClient(IServerGameClients *pClients, int client);
-
-static KHook::Virtual<IVEngineServer, const char *> g_HookGetMapEntitiesString(&IVEngineServer::GetMapEntitiesString, Hook_GetMapEntitiesString, nullptr);
-static KHook::Virtual<IServerGameDLL, bool, char const *, char const *, char const *, char const *, bool, bool> g_HookLevelInit(&IServerGameDLL::LevelInit, Hook_LevelInit, nullptr);
-static KHook::Virtual<IServerGameClients, void, int> g_HookSetCommandClient(&IServerGameClients::SetCommandClient, Hook_SetCommandClient, nullptr);
+#if METAMOD_PLAPI_VERSION < 18
+SH_DECL_HOOK0(IVEngineServer, GetMapEntitiesString, SH_NOATTRIB, 0, const char *);
+SH_DECL_HOOK6(IServerGameDLL, LevelInit, SH_NOATTRIB, 0, bool, char const *, char const *, char const *, char const *, bool, bool);
+SH_DECL_HOOK1_void(IServerGameClients, SetCommandClient, SH_NOATTRIB, 0, int);
+#else
+static KHook::Virtual<IVEngineServer, const char *> g_HookGetMapEntitiesString(&IVEngineServer::GetMapEntitiesString, GetMapEntitiesString_handler, nullptr);
+static KHook::Virtual<IServerGameDLL, bool, char const *, char const *, char const *, char const *, bool, bool> g_HookLevelInit(&IServerGameDLL::LevelInit, LevelInit_handler, nullptr);
+#endif
 
 #if !defined ORANGEBOX_BUILD
 ICvar* g_pCVar = NULL;
@@ -73,8 +79,13 @@ typedef void *			LibraryHandle;
 
 static LibraryHandle stripper_lib;
 
+#if METAMOD_PLAPI_VERSION < 18
 static void
 SetCommandClient(int client);
+#else
+static KHook::Return<void> SetCommandClient(IServerGameClients *pClients, int client);
+static KHook::Virtual<IServerGameClients, void, int> g_HookSetCommandClient(&IServerGameClients::SetCommandClient, SetCommandClient, nullptr);
+#endif
 
 static void
 log_message(const char* fmt, ...)
@@ -279,9 +290,15 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
 
     stripper_load(&stripper_game, &stripper_core);
 
+#if METAMOD_PLAPI_VERSION < 18
+    SH_ADD_HOOK_STATICFUNC(IVEngineServer, GetMapEntitiesString, engine, GetMapEntitiesString_handler, false);
+    SH_ADD_HOOK_STATICFUNC(IServerGameDLL, LevelInit, server, LevelInit_handler, false);
+    SH_ADD_HOOK_STATICFUNC(IServerGameClients, SetCommandClient, clients, SetCommandClient, false);
+#else
     g_HookGetMapEntitiesString.Add(engine);
     g_HookLevelInit.Add(server);
     g_HookSetCommandClient.Add(clients);
+#endif
 
 #if SOURCE_ENGINE >= SE_ORANGEBOX
     g_pCVar = GetICVar();
@@ -296,9 +313,15 @@ StripperPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
 bool
 StripperPlugin::Unload(char *error, size_t maxlen)
 {
+#if METAMOD_PLAPI_VERSION < 18
+    SH_REMOVE_HOOK_STATICFUNC(IVEngineServer, GetMapEntitiesString, engine, GetMapEntitiesString_handler, false);
+    SH_REMOVE_HOOK_STATICFUNC(IServerGameDLL, LevelInit, server, LevelInit_handler, false);
+    SH_REMOVE_HOOK_STATICFUNC(IServerGameClients, SetCommandClient, clients, SetCommandClient, false);
+#else
     g_HookGetMapEntitiesString.Remove(engine);
     g_HookLevelInit.Remove(server);
     g_HookSetCommandClient.Remove(clients);
+#endif
     stripper_core.unload();
     dlclose(stripper_lib);
     stripper_lib = NULL;
@@ -306,14 +329,28 @@ StripperPlugin::Unload(char *error, size_t maxlen)
     return true;
 }
 
+#if METAMOD_PLAPI_VERSION < 18
+const char*
+GetMapEntitiesString_handler()
+#else
 static KHook::Return<const char *>
-Hook_GetMapEntitiesString(IVEngineServer *pEngine)
+GetMapEntitiesString_handler(IVEngineServer *pEngine)
+#endif
 {
+#if METAMOD_PLAPI_VERSION < 18
+    RETURN_META_VALUE(MRES_SUPERCEDE, stripper_core.ent_string());
+#else
     return { KHook::Action::Supersede, stripper_core.ent_string() };
+#endif
 }
 
+#if METAMOD_PLAPI_VERSION < 18
+bool
+LevelInit_handler(char const *pMapName, char const *pMapEntities, char const *c, char const *d, bool e, bool f)
+#else
 static KHook::Return<bool>
-Hook_LevelInit(IServerGameDLL *pServer, char const *pMapName, char const *pMapEntities, char const *c, char const *d, bool e, bool f)
+LevelInit_handler(IServerGameDLL *pServer, char const *pMapName, char const *pMapEntities, char const *c, char const *d, bool e, bool f)
+#endif
 {
     char mapDisplay[128];
     get_map_display_name(pMapName, mapDisplay, sizeof(mapDisplay));
@@ -332,8 +369,12 @@ Hook_LevelInit(IServerGameDLL *pServer, char const *pMapName, char const *pMapEn
     stripper_curfile.SetValue(g_mapname.c_str());
 
     const char *ents = stripper_core.parse_map(g_mapname.c_str(), pMapEntities);
+#if METAMOD_PLAPI_VERSION < 18
+    RETURN_META_VALUE_NEWPARAMS(MRES_IGNORED, true, &IServerGameDLL::LevelInit, (pMapName, ents, c, d, e, f));
+#else
     bool ret = g_HookLevelInit.CallOriginal(pServer, pMapName, ents, c, d, e, f);
     return { KHook::Action::Supersede, ret };
+#endif
 }
 
 char*
@@ -425,11 +466,20 @@ StripperPlugin::RegisterConCommandBase(ConCommandBase *pVar)
 
 static int last_command_client = 1;
 
+#if METAMOD_PLAPI_VERSION < 18
+static void
+SetCommandClient(int client)
+#else
 static KHook::Return<void>
-Hook_SetCommandClient(IServerGameClients *pClients, int client)
+SetCommandClient(IServerGameClients *pClients, int client)
+#endif
 {
     last_command_client = client;
+#if METAMOD_PLAPI_VERSION < 18
+    RETURN_META(MRES_IGNORED);
+#else
     return { KHook::Action::Ignore };
+#endif
 }
 
 ConVar stripper_version("stripper_version", STRIPPER_FULL_VERSION, FCVAR_SPONLY | FCVAR_NOTIFY, "Stripper Version");
