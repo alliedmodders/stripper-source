@@ -54,9 +54,13 @@ PLUGIN_GLOBALVARS();
         return false; \
     }
 
-
+#if METAMOD_PLAPI_VERSION < 18
 const char *GetMapEntitiesString_handler();
 bool LevelInit_handler(char const *pMapName, char const *pMapEntities, char const *c, char const *d, bool e, bool f);
+#else
+KHook::Return<const char *> GetMapEntitiesString_handler(IVEngineServer *pEngine);
+KHook::Return<bool> LevelInit_handler(IServerGameDLL *pServer, char const *pMapName, char const *pMapEntities, char const *c, char const *d, bool e, bool f);
+#endif
 char *UTIL_ToLowerCase(const char *str);
 
 #endif //_INCLUDE_SAMPLEPLUGIN_H
