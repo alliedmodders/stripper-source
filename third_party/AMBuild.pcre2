@@ -6,16 +6,16 @@ import os
 builder.SetBuildFolder('libpcre2')
 
 def prep_pcre2(builder):
-    builder.AddFolder(os.path.join(builder.buildFolder, 'src'))
-    builder.AddFolder(os.path.join(builder.buildFolder, 'headers'))
+    builder.AddFolder('src')
+    builder.AddFolder('headers')
 
     pcre2_header = builder.AddCopy(
         os.path.join(builder.currentSourcePath, 'pcre2', 'src', 'pcre2.h.generic'),
-        os.path.join(builder.buildFolder, 'headers', 'pcre2.h')
+        os.path.join('headers', 'pcre2.h')
     )
     pcre2_chartables = builder.AddCopy(
         os.path.join(builder.currentSourcePath, 'pcre2', 'src', 'pcre2_chartables.c.dist'),
-        os.path.join(builder.buildFolder, 'src', 'pcre2_chartables.c')
+        os.path.join('src', 'pcre2_chartables.c')
     )
     return {
         'pcre2_header': pcre2_header,
@@ -29,9 +29,11 @@ rvalue = {}
 for cxx in MMS.all_targets:
     binary = MMS.StaticLibrary(builder, cxx, 'pcre2')
     binary.compiler.includes += [
-        os.path.dirname(pcre2_generated['pcre2_header'].path),
+        os.path.join(builder.buildPath, 'libpcre2', 'headers'),
+        os.path.join(builder.currentSourcePath, 'pcre2', 'src'),
         os.path.join(builder.currentSourcePath, 'pcre2_config', binary.compiler.target.platform)
     ]
+    binary.compiler.sourcedeps += [pcre2_generated['pcre2_header']]
 
     binary.compiler.defines += ['PCRE2_CODE_UNIT_WIDTH=8', 'HAVE_CONFIG_H']
     if builder.options.debug == '1':
@@ -40,7 +42,7 @@ for cxx in MMS.all_targets:
     binary.sources += [
         'pcre2/src/pcre2_auto_possess.c',
         'pcre2/src/pcre2_chkdint.c',
-        pcre2_generated['pcre2_chartables'].path,
+        pcre2_generated['pcre2_chartables'],
         'pcre2/src/pcre2_compile.c',
         'pcre2/src/pcre2_compile_cgroup.c',
         'pcre2/src/pcre2_compile_class.c',
