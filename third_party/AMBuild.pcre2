@@ -73,3 +73,5 @@ for cxx in MMS.all_targets:
         'pcre2/src/pcre2_xclass.c'
     ]
     rvalue[binary.compiler.target.arch] = builder.Add(binary)
+
+rvalue['header'] = pcre2_generated['pcre2_header']
