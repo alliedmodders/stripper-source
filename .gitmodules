@@ -2,3 +2,6 @@
 	path = hl2sdk-manifests
 	url = https://github.com/alliedmodders/hl2sdk-manifests.git
 	branch = master
+[submodule "third_party/pcre2"]
+	path = third_party/pcre2
+	url = https://github.com/PCRE2Project/pcre2
