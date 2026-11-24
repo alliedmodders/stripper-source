@@ -121,7 +121,7 @@ Stripper::Stripper()
     m_resync = false;
     jit_compiled = false;
 
-    static constexpr char pattern[] = "\"([^\"]+)\"\\s+\"([^\"]+)\"";
+    static constexpr char pattern[] = "\"([^\"]+)\"\\s+\"([^\"]*)\"";
     int error_code;
     PCRE2_SIZE error_offset;
     brk_re = pcre2_compile((PCRE2_SPTR)pattern,
@@ -578,7 +578,7 @@ void Stripper::_BuildPropList()
                 /* copy the key */
                 f_strncpy_s(_key, s->c_str() + ovector[2], l);
                 l = ovector[5] - ovector[4];
-                if (l > _valsize)
+                if (!_val || l > _valsize)
                 {
                     delete [] _val;
                     _valsize = l;
@@ -774,7 +774,7 @@ void Stripper::ApplyFileFilter(const char *file)
                 /* copy the key */
                 f_strncpy_s(_key, buffer + ovector[2], len);
                 len = ovector[5] - ovector[4];
-                if (len > _valsize)
+                if (!_val || len > _valsize)
                 {
                     delete [] _val;
                     _valsize = len;
@@ -784,7 +784,7 @@ void Stripper::ApplyFileFilter(const char *file)
                 f_strncpy_s(_val, buffer + ovector[4], len);
                 pcre2_code *re = NULL;
                 pcre2_match_data *match_data = NULL;
-                if (_val[0] == '/' && _val[len-1] == '/')
+                if (len > 0 && _val[0] == '/' && _val[len-1] == '/')
                 {
                     _val[--len] = '\0';
                     int error_code;
@@ -882,6 +882,8 @@ void Stripper::ApplyFileFilter(const char *file)
         fpairs.pop();
     }
 
+    delete [] _val;
+    delete [] _key;
     fclose(fp);
 
     m_resync = true;
