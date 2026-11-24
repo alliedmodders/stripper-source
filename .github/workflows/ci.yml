@@ -97,7 +97,7 @@ jobs:
             sdks+=("darkm" "swarm" "bgt" "contagion" "eye")
           fi
           for sdk in "${sdks[@]}" ; do
-            git clone --depth 1 --recurse-submodules --shallow-submodules \
+            git clone --recurse-submodules --shallow-submodules \
               -b "$sdk" hl2sdk-proxy-repo "dependencies/hl2sdk-$sdk"
           done
 
